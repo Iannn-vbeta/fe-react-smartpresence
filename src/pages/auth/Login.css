@@ -1,0 +1,171 @@
+/* Login.css */
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1d4ed8 100%);
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.login-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-logo {
+  max-width: 140px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.login-title {
+  color: #1a3c87; /* deep blue */
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.login-subtitle {
+  color: #64748b; /* slate gray */
+  font-size: 0.95rem;
+  margin: 0.25rem 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  font-size: 0.95rem;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #94a3b8;
+}
+
+.form-group input:focus {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.login-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #1d4ed8; /* strong blue */
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}
+
+.login-btn:hover {
+  background-color: #1e40af;
+}
+
+.login-btn:active {
+  transform: scale(0.98);
+}
+
+/* Responsiveness for smaller screens */
+@media screen and (max-width: 480px) {
+  .login-container {
+    padding: 1rem;
+    align-items: flex-start; /* Move card slightly higher on small screens */
+    padding-top: 10vh; /* Adjust spacing from top */
+  }
+
+  .login-card {
+    padding: 2rem 1.5rem; /* Less padding on the sides */
+    border-radius: 16px; /* Slightly rounder look on mobile */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); /* More pronounced shadow to pop out */
+  }
+
+  .login-logo {
+    max-width: 110px; /* Smaller logo */
+    margin-bottom: 0.75rem;
+  }
+
+  .login-title {
+    font-size: 1.35rem; /* Smaller title */
+  }
+
+  .login-subtitle {
+    font-size: 0.85rem; /* Smaller subtitle */
+  }
+
+  .form-group input {
+    padding: 0.85rem 1rem 0.85rem 3rem; /* Keep padding for icons, slightly larger tap area */
+    font-size: 1rem; /* Prevent auto-zoom on iOS */
+  }
+
+  .login-btn {
+    padding: 0.95rem; /* Taller button for easier tapping */
+  }
+}
