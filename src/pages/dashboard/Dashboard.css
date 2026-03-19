@@ -1,0 +1,475 @@
+/* Dashboard.css */
+
+/* ─── Header ─── */
+.dashboard-header {
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.dashboard-header .dashboard-date {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ─── Stats Cards ─── */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+
+.stat-card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.stat-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: #ffffff;
+}
+
+.stat-card-icon.blue   { background: #3b82f6; }
+.stat-card-icon.green  { background: #22c55e; }
+.stat-card-icon.orange { background: #64748b; }
+.stat-card-icon.purple { background: #8b5cf6; }
+
+/* ─── Section Header ─── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.section-header .section-date {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ─── Meetings List ─── */
+.meetings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.meeting-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: box-shadow 0.2s ease;
+}
+
+.meeting-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.meeting-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.meeting-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.meeting-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.meeting-status.berlangsung {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.meeting-status.menunggu,
+.meeting-status.scheduled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.meeting-status.selesai,
+.meeting-status.completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.meeting-status.in_progress {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.meeting-status.cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.meeting-card-details {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.meeting-card-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.meeting-card-detail-item svg {
+  width: 16px;
+  height: 16px;
+  fill: #94a3b8;
+  flex-shrink: 0;
+}
+
+.meeting-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.meeting-card-creator {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.meeting-card-creator svg {
+  width: 16px;
+  height: 16px;
+  fill: #94a3b8;
+}
+
+.meeting-card-attendance {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.attendance-total {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.attendance-total svg {
+  width: 16px;
+  height: 16px;
+  fill: #94a3b8;
+}
+
+.attendance-present {
+  color: #16a34a;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.attendance-absent {
+  color: #dc2626;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ─── Room Usage Timeline ─── */
+.room-usage-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.room-usage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.room-usage-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.room-usage-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.room-usage-nav button {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  color: #475569;
+  font-size: 0.8rem;
+  transition: background 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.room-usage-nav button:hover {
+  background: #f1f5f9;
+}
+
+.room-usage-nav button svg {
+  width: 14px;
+  height: 14px;
+  fill: #475569;
+}
+
+.room-usage-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Timeline grid */
+.timeline-wrapper {
+  overflow-x: auto;
+  min-width: 100%;
+}
+
+.timeline-grid {
+  display: table;
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+}
+
+.timeline-header-row,
+.timeline-room-row {
+  display: table-row;
+}
+
+.timeline-cell {
+  display: table-cell;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-align: center;
+  vertical-align: middle;
+  min-width: 80px;
+  position: relative;
+}
+
+.timeline-cell.room-name {
+  text-align: left;
+  font-weight: 600;
+  color: #334155;
+  min-width: 140px;
+  padding-left: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.timeline-cell.header {
+  font-weight: 600;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.timeline-meeting-block {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  z-index: 1;
+  min-width: 60px;
+}
+
+.timeline-meeting-block .meeting-block-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.timeline-meeting-block .meeting-block-time {
+  font-size: 0.6rem;
+  opacity: 0.85;
+}
+
+/* Color palette for meetings */
+.timeline-meeting-block.color-0 { background: #ef4444; }
+.timeline-meeting-block.color-1 { background: #3b82f6; }
+.timeline-meeting-block.color-2 { background: #22c55e; }
+.timeline-meeting-block.color-3 { background: #f59e0b; }
+.timeline-meeting-block.color-4 { background: #8b5cf6; }
+.timeline-meeting-block.color-5 { background: #ec4899; }
+
+/* ─── Loading / Empty ─── */
+.dashboard-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.dashboard-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: dash-spin 0.7s linear infinite;
+  margin-right: 0.75rem;
+}
+
+@keyframes dash-spin {
+  to { transform: rotate(360deg); }
+}
+
+.dashboard-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.dashboard-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── RESPONSIVE ─── */
+@media screen and (max-width: 1024px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .meeting-card-details {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .meeting-card-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .stat-card {
+    padding: 1rem 1.25rem;
+  }
+
+  .stat-card-value {
+    font-size: 1.35rem;
+  }
+}

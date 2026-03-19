@@ -1,0 +1,31 @@
+/* DashboardLayout.css */
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.dashboard-layout-content {
+  flex: 1;
+  margin-left: 240px;
+  padding: 1.5rem 2rem;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+}
+
+.dashboard-layout.sidebar-collapsed .dashboard-layout-content {
+  margin-left: 68px;
+}
+
+/* ─── RESPONSIVE ─── */
+@media screen and (max-width: 768px) {
+  .dashboard-layout-content {
+    margin-left: 0;
+    padding: 4.5rem 1rem 1.5rem; /* top padding for hamburger */
+  }
+
+  .dashboard-layout.sidebar-collapsed .dashboard-layout-content {
+    margin-left: 0;
+  }
+}

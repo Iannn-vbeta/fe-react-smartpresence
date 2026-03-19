@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../../services/authService';
+import { useAuthStore } from '../../store/authStore';
 import './Login.css';
 import logo from '../../assets/images/logo.jpeg';
 import userIcon from '../../assets/icons/user.webp';
@@ -8,11 +11,37 @@ import masukIcon from '../../assets/icons/masuk.webp';
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const auth = useAuthStore();
+
+  // Redirect if already authenticated
+  if (auth.isAuthenticated) {
+    navigate('/dashboard', { replace: true });
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Handle login logic here
-    console.log('Login attempt with:', { username, password });
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await authService.login({ username, password });
+      auth.login(response.token, response.user);
+      navigate('/dashboard', { replace: true });
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response?: { data?: { message?: string } } };
+        setError(axiosError.response?.data?.message || 'Login gagal. Silakan coba lagi.');
+      } else {
+        setError('Terjadi kesalahan jaringan. Silakan coba lagi.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -24,6 +53,12 @@ const Login: React.FC = () => {
           <p className="login-subtitle">Sistem Presensi Rapat</p>
           <p className="login-subtitle">Rumah Sakit Citra Husada</p>
         </div>
+
+        {error && (
+          <div className="login-error">
+            {error}
+          </div>
+        )}
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -37,6 +72,7 @@ const Login: React.FC = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Masukkan username"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -52,13 +88,23 @@ const Login: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Masukkan password"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>
 
-          <button type="submit" className="login-btn">
-            <img src={masukIcon} alt="login icon" className="btn-icon" />
-            Masuk
+          <button type="submit" className="login-btn" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <span className="login-spinner"></span>
+                Memproses...
+              </>
+            ) : (
+              <>
+                <img src={masukIcon} alt="login icon" className="btn-icon" />
+                Masuk
+              </>
+            )}
           </button>
         </form>
       </div>

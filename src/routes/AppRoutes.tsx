@@ -1,0 +1,50 @@
+import { Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
+import Login from '../pages/auth/Login';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import Dashboard from '../pages/dashboard/Dashboard';
+
+function ProtectedRoute() {
+  const { isAuthenticated } = useAuthStore();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
+}
+
+export default function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Placeholder routes for sidebar menu items */}
+          <Route path="/meetings" element={<PlaceholderPage title="Jadwal Rapat" />} />
+          <Route path="/employees" element={<PlaceholderPage title="Karyawan" />} />
+          <Route path="/rooms" element={<PlaceholderPage title="Ruang Rapat" />} />
+          <Route path="/users" element={<PlaceholderPage title="Pengguna" />} />
+          <Route path="/reports" element={<PlaceholderPage title="Laporan" />} />
+          <Route path="/settings" element={<PlaceholderPage title="Pengaturan" />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+}
+
+function PlaceholderPage({ title }: { title: string }) {
+  return (
+    <div style={{ padding: '1rem 0' }}>
+      <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+        {title}
+      </h1>
+      <p style={{ color: '#64748b', marginTop: '0.5rem' }}>
+        Halaman ini sedang dalam pengembangan.
+      </p>
+    </div>
+  );
+}
