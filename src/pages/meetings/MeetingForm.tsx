@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { meetingService, meetingRoomService, employeeService } from '../../services/meetingService';
-import type { MeetingRoom, Employee, MeetingFormData } from '../../types/meeting';
+import { meetingService, meetingRoomService } from '../../services/meetingService';
+import { employeeService } from '../../services/employeeService';
+import type { MeetingRoom, MeetingFormData } from '../../types/meeting';
+import type { Employee } from '../../types/employee';
 import './MeetingForm.css';
 
 /* helpers */
@@ -223,7 +225,7 @@ export default function MeetingForm() {
                   <div className="participant-info">
                     <div className="participant-name">{p.full_name}</div>
                     <div className="participant-detail">
-                      {[p.position?.name, p.work_unit?.name, `NIP: ${p.nip}`].filter(Boolean).join(' • ')}
+                      {[p.position?.position, p.work_unit?.work_unit, `NIP: ${p.nip}`].filter(Boolean).join(' • ')}
                     </div>
                   </div>
                   <button type="button" className="participant-remove-btn" onClick={() => removeParticipant(p.id)} title="Hapus peserta">✕</button>
@@ -273,7 +275,7 @@ export default function MeetingForm() {
                       <div className="employee-search-item-info">
                         <div className="employee-search-item-name">{emp.full_name}</div>
                         <div className="employee-search-item-detail">
-                          {[emp.position?.name, emp.work_unit?.name, `NIP: ${emp.nip}`].filter(Boolean).join(' • ')}
+                          {[emp.position?.position, emp.work_unit?.work_unit, `NIP: ${emp.nip}`].filter(Boolean).join(' • ')}
                         </div>
                       </div>
                       {isSelected && <span style={{ color: '#22c55e', fontWeight: 700 }}>✓</span>}

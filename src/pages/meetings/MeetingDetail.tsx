@@ -170,9 +170,7 @@ export default function MeetingDetail() {
               <div className="attendance-avatar">{initials(p.employee.full_name)}</div>
               <div className="attendance-info">
                 <div className="attendance-name">{p.employee.full_name}</div>
-                <div className="attendance-subtext">
-                  {[p.employee.position?.name, p.employee.work_unit?.name, `NIP: ${p.employee.nip}`].filter(Boolean).join(' • ')}
-                </div>
+                  {[p.employee.position?.position, p.employee.work_unit?.work_unit, `NIP: ${p.employee.nip}`].filter(Boolean).join(' • ')}
               </div>
               <div className="attendance-actions">
                 {p.status === 'hadir' ? (

@@ -6,6 +6,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import Dashboard from '../pages/dashboard/Dashboard';
 import UserManagement from '../pages/users/UserManagement';
 import RoomManagement from '../pages/rooms/RoomManagement';
+import EmployeeManagement from '../pages/employees/EmployeeManagement';
 import MeetingManagement from '../pages/meetings/MeetingManagement';
 import MeetingForm from '../pages/meetings/MeetingForm';
 import MeetingDetail from '../pages/meetings/MeetingDetail';
@@ -33,7 +34,7 @@ export default function AppRoutes() {
           <Route path="/meetings/:id" element={<MeetingDetail />} />
           <Route path="/meetings/:id/edit" element={<MeetingForm />} />
           {/* Placeholder routes */}
-          <Route path="/employees" element={<PlaceholderPage title="Karyawan" />} />
+          <Route path="/employees" element={<EmployeeManagement />} />
           <Route path="/rooms" element={<RoomManagement />} />
           <Route path="/users" element={<UserManagement />} />
           <Route path="/reports" element={<PlaceholderPage title="Laporan" />} />

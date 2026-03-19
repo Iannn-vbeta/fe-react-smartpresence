@@ -4,8 +4,6 @@ import type {
   MeetingDetailData,
   MeetingFormData,
   MeetingRoom,
-  Employee,
-  WorkUnit,
   PaginatedResponse,
 } from '../types/meeting';
 
@@ -83,16 +81,4 @@ export const meetingRoomService = {
   },
 };
 
-export const employeeService = {
-  async list(params?: Record<string, string | number>): Promise<{ data: PaginatedResponse<Employee> }> {
-    const res = await api.get('/employees', { params });
-    return res.data;
-  },
-};
 
-export const workUnitService = {
-  async list(): Promise<WorkUnit[]> {
-    const res = await api.get('/work-units');
-    return res.data.data || [];
-  },
-};

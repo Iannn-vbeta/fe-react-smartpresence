@@ -8,29 +8,7 @@ export interface MeetingRoom {
   is_active?: boolean;
 }
 
-export interface WorkUnit {
-  id: number;
-  name: string;
-}
-
-export interface Position {
-  id: number;
-  name: string;
-}
-
-export interface Employee {
-  id: number;
-  full_name: string;
-  nip: string;
-  employee_type_id?: number;
-  work_unit_id?: number;
-  position_id?: number;
-  email?: string;
-  phone?: string;
-  is_active?: boolean;
-  work_unit?: WorkUnit;
-  position?: Position;
-}
+import type { Employee } from './employee';
 
 export interface MeetingParticipant {
   id: number;
