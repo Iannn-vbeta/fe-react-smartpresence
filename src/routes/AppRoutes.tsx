@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import Login from '../pages/auth/Login';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Dashboard from '../pages/dashboard/Dashboard';
+import UserManagement from '../pages/users/UserManagement';
 import MeetingManagement from '../pages/meetings/MeetingManagement';
 import MeetingForm from '../pages/meetings/MeetingForm';
 import MeetingDetail from '../pages/meetings/MeetingDetail';
@@ -33,7 +34,7 @@ export default function AppRoutes() {
           {/* Placeholder routes */}
           <Route path="/employees" element={<PlaceholderPage title="Karyawan" />} />
           <Route path="/rooms" element={<PlaceholderPage title="Ruang Rapat" />} />
-          <Route path="/users" element={<PlaceholderPage title="Pengguna" />} />
+          <Route path="/users" element={<UserManagement />} />
           <Route path="/reports" element={<PlaceholderPage title="Laporan" />} />
           <Route path="/settings" element={<PlaceholderPage title="Pengaturan" />} />
         </Route>
