@@ -48,10 +48,38 @@ export const meetingService = {
 
 /* ─── Dropdown data ─── */
 export const meetingRoomService = {
-  async list(): Promise<MeetingRoom[]> {
-    const res = await api.get('/meeting-rooms');
-    // The API returns paginated data or all data
+  async list(params?: Record<string, string | number>): Promise<MeetingRoom[]> {
+    const res = await api.get('/meeting-rooms', { params });
     return res.data.data?.data || res.data.data || [];
+  },
+
+  async listPaginated(params?: Record<string, string | number>): Promise<{ data: PaginatedResponse<MeetingRoom> }> {
+    const res = await api.get('/meeting-rooms', { params });
+    return res.data;
+  },
+
+  async show(id: number): Promise<{ data: MeetingRoom }> {
+    const res = await api.get(`/meeting-room/${id}`);
+    return res.data;
+  },
+
+  async store(data: Partial<MeetingRoom>): Promise<{ data: MeetingRoom }> {
+    const res = await api.post('/meeting-room', data);
+    return res.data;
+  },
+
+  async update(id: number, data: Partial<MeetingRoom>): Promise<{ data: MeetingRoom }> {
+    const res = await api.patch(`/meeting-room/${id}`, data);
+    return res.data;
+  },
+
+  async toggleStatus(id: number): Promise<{ data: MeetingRoom }> {
+    const res = await api.patch(`/meeting-room/${id}/toggle-status`);
+    return res.data;
+  },
+
+  async destroy(id: number): Promise<void> {
+    await api.delete(`/meeting-room/${id}`);
   },
 };
 
