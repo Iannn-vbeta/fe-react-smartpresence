@@ -1,0 +1,336 @@
+/* MeetingForm.css */
+
+.meeting-form-page {
+  max-width: 960px;
+}
+
+/* ─── Info card ─── */
+.meeting-form-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.meeting-form-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1.25rem;
+}
+
+.meeting-form-card-title svg {
+  width: 22px;
+  height: 22px;
+  fill: #3b82f6;
+}
+
+/* ─── Form rows ─── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-row.single {
+  grid-template-columns: 1fr;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  margin-bottom: 0.35rem;
+}
+
+.form-field label .required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+.form-field input:read-only {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.form-field-error {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+/* ─── Participants card ─── */
+.participants-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 2px solid #22c55e;
+  margin-bottom: 1.25rem;
+}
+
+.participants-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.participants-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.participants-header h3 svg {
+  width: 22px;
+  height: 22px;
+  fill: #475569;
+}
+
+.add-participant-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-participant-btn:hover { background: #16a34a; }
+
+.add-participant-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* Participant list */
+.participant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f0fdf4;
+  border-radius: 10px;
+  border: 1px solid #bbf7d0;
+}
+
+.participant-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.participant-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.participant-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.participant-detail {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.participant-remove-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.participant-remove-btn:hover {
+  color: #b91c1c;
+}
+
+.participants-empty {
+  text-align: center;
+  padding: 1.5rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+/* ─── Footer actions ─── */
+.meeting-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.meeting-form-footer button {
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-cancel {
+  background: #fff;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-cancel:hover { background: #f1f5f9; }
+
+.btn-submit {
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+}
+
+.btn-submit:hover { background: #1e40af; }
+.btn-submit:disabled { background: #93c5fd; cursor: not-allowed; }
+
+/* ─── Employee search modal ─── */
+.employee-search-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  outline: none;
+}
+
+.employee-search-input:focus { border-color: #3b82f6; }
+
+.employee-search-list {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.employee-search-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+
+.employee-search-item:hover { background: #f1f5f9; }
+
+.employee-search-item.selected {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.employee-search-item-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.employee-search-item-info { flex: 1; }
+
+.employee-search-item-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #0f172a;
+}
+
+.employee-search-item-detail {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.employee-search-loading {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+/* ─── RESPONSIVE ─── */
+@media screen and (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .participants-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .meeting-form-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .participants-card {
+    padding: 1.25rem 1rem;
+  }
+}

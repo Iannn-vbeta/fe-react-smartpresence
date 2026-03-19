@@ -1,0 +1,341 @@
+/* MeetingManagement.css */
+
+/* ─── Page Header ─── */
+.meeting-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.meeting-page-header-text h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.meeting-page-header-text p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.meeting-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.meeting-add-btn:hover { background: #1e40af; }
+
+.meeting-add-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ─── Filters ─── */
+.meeting-filters {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1px solid #e2e8f0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.filter-group input,
+.filter-group select {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+.filter-input-wrapper {
+  position: relative;
+}
+
+.filter-input-wrapper svg {
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  fill: #94a3b8;
+}
+
+.filter-input-wrapper input {
+  padding-left: 2.25rem;
+}
+
+/* ─── Table ─── */
+.meeting-table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.meeting-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.meeting-table th {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.meeting-table td {
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.meeting-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.meeting-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.selesai,
+.status-badge.completed    { background: #dcfce7; color: #16a34a; }
+.status-badge.berlangsung,
+.status-badge.in_progress  { background: #dbeafe; color: #2563eb; }
+.status-badge.menunggu,
+.status-badge.scheduled    { background: #f1f5f9; color: #64748b; }
+.status-badge.cancelled,
+.status-badge.dibatalkan   { background: #fef2f2; color: #dc2626; }
+
+/* Action buttons */
+.action-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  background: none;
+}
+
+.action-btn svg { width: 18px; height: 18px; }
+
+.action-btn.view svg  { fill: #3b82f6; }
+.action-btn.edit svg  { fill: #22c55e; }
+.action-btn.del svg   { fill: #ef4444; }
+
+.action-btn.view:hover { background: #eff6ff; }
+.action-btn.edit:hover { background: #f0fdf4; }
+.action-btn.del:hover  { background: #fef2f2; }
+
+/* ─── Pagination ─── */
+.meeting-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.825rem;
+  color: #64748b;
+}
+
+.meeting-pagination-info {
+  font-size: 0.8rem;
+}
+
+.meeting-pagination-btns {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.meeting-pagination-btns button {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #475569;
+  transition: background 0.15s;
+}
+
+.meeting-pagination-btns button:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.meeting-pagination-btns button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.meeting-pagination-btns button.active {
+  background: #1d4ed8;
+  color: #fff;
+  border-color: #1d4ed8;
+}
+
+/* ─── Loading / Empty ─── */
+.meeting-loading,
+.meeting-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.meeting-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* ─── Delete modal ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+}
+
+.modal-box h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.modal-box p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal-actions button {
+  padding: 0.55rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  transition: background 0.15s;
+}
+
+.modal-cancel-btn {
+  background: #fff;
+  color: #475569;
+}
+
+.modal-cancel-btn:hover { background: #f1f5f9; }
+
+.modal-delete-btn {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+
+.modal-delete-btn:hover { background: #b91c1c; }
+
+/* ─── RESPONSIVE ─── */
+@media screen and (max-width: 768px) {
+  .meeting-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .meeting-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .meeting-page-header {
+    flex-direction: column;
+  }
+}

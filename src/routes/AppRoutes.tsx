@@ -4,6 +4,9 @@ import { useAuthStore } from '../store/authStore';
 import Login from '../pages/auth/Login';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Dashboard from '../pages/dashboard/Dashboard';
+import MeetingManagement from '../pages/meetings/MeetingManagement';
+import MeetingForm from '../pages/meetings/MeetingForm';
+import MeetingDetail from '../pages/meetings/MeetingDetail';
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuthStore();
@@ -22,8 +25,12 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* Placeholder routes for sidebar menu items */}
-          <Route path="/meetings" element={<PlaceholderPage title="Jadwal Rapat" />} />
+          {/* Meetings */}
+          <Route path="/meetings" element={<MeetingManagement />} />
+          <Route path="/meetings/create" element={<MeetingForm />} />
+          <Route path="/meetings/:id" element={<MeetingDetail />} />
+          <Route path="/meetings/:id/edit" element={<MeetingForm />} />
+          {/* Placeholder routes */}
           <Route path="/employees" element={<PlaceholderPage title="Karyawan" />} />
           <Route path="/rooms" element={<PlaceholderPage title="Ruang Rapat" />} />
           <Route path="/users" element={<PlaceholderPage title="Pengguna" />} />
@@ -39,12 +46,8 @@ export default function AppRoutes() {
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div style={{ padding: '1rem 0' }}>
-      <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-        {title}
-      </h1>
-      <p style={{ color: '#64748b', marginTop: '0.5rem' }}>
-        Halaman ini sedang dalam pengembangan.
-      </p>
+      <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>{title}</h1>
+      <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Halaman ini sedang dalam pengembangan.</p>
     </div>
   );
 }

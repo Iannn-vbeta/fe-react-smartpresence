@@ -1,0 +1,296 @@
+/* MeetingDetail.css */
+
+.meeting-detail-page {
+  max-width: 960px;
+}
+
+/* ─── Stat counters top right ─── */
+.attendance-counters {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.attendance-counter {
+  text-align: center;
+}
+
+.attendance-counter-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: block;
+}
+
+.attendance-counter-value.hadir { color: #22c55e; }
+.attendance-counter-value.terlambat { color: #f59e0b; }
+.attendance-counter-value.tidak-hadir { color: #ef4444; }
+
+.attendance-counter-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Info card (read-only) ─── */
+.detail-info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.detail-info-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1.25rem;
+}
+
+.detail-info-card h2 svg {
+  width: 22px;
+  height: 22px;
+  fill: #3b82f6;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-row.single {
+  grid-template-columns: 1fr;
+}
+
+.detail-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  margin-bottom: 0.25rem;
+}
+
+.detail-field-value {
+  padding: 0.6rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #334155;
+  min-height: 38px;
+}
+
+/* ─── Participants attendance card ─── */
+.attendance-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 2px solid #22c55e;
+  margin-bottom: 1.25rem;
+}
+
+.attendance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.attendance-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.attendance-header h3 svg {
+  width: 22px;
+  height: 22px;
+  fill: #475569;
+}
+
+.scan-barcode-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.scan-barcode-btn:hover { background: #1e40af; }
+
+.scan-barcode-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* Participant attendance list */
+.attendance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attendance-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f0fdf4;
+  border-radius: 10px;
+  border: 1px solid #bbf7d0;
+}
+
+.attendance-item.absent {
+  background: #fefce8;
+  border-color: #fde68a;
+}
+
+.attendance-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.attendance-item.absent .attendance-avatar {
+  background: #f59e0b;
+}
+
+.attendance-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.attendance-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.attendance-subtext {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.attendance-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.attendance-status-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.attendance-status-icon.hadir { color: #22c55e; }
+.attendance-status-icon.tidak-hadir { color: #94a3b8; }
+
+.attendance-status-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.manual-attend-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.manual-attend-btn:hover { background: #f1f5f9; }
+
+/* ─── Scan modal ─── */
+.scan-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  text-align: center;
+  outline: none;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.scan-input:focus {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+}
+
+.scan-result {
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.scan-result.success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+}
+
+.scan-result.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+/* ─── Footer ─── */
+.detail-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.detail-footer button {
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+/* ─── RESPONSIVE ─── */
+@media screen and (max-width: 640px) {
+  .detail-row { grid-template-columns: 1fr; }
+  .attendance-header { flex-direction: column; align-items: flex-start; }
+  .attendance-counters { gap: 1rem; }
+  .detail-info-card, .attendance-card { padding: 1.25rem 1rem; }
+}
