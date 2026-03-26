@@ -35,6 +35,22 @@ export const employeeService = {
   async destroy(id: number): Promise<void> {
     await api.delete(`/employee/${id}`);
   },
+
+  async export(): Promise<Blob> {
+    const res = await api.get("/employees/export", { responseType: 'blob' });
+    return res.data;
+  },
+
+  async import(file: File): Promise<{ message: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post("/employees/import", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return res.data;
+  },
 };
 
 export const employeeTypeService = {

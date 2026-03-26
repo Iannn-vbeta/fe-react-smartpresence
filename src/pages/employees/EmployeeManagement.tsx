@@ -44,6 +44,8 @@ export default function EmployeeManagement() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -174,6 +176,43 @@ export default function EmployeeManagement() {
     }
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const blob = await employeeService.export();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Data_Karyawan_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      if (link.parentNode) link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError("Gagal mengekspor data karyawan.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setError(null);
+    try {
+      await employeeService.import(file);
+      fetchEmployees();
+    } catch (err: unknown) {
+      const axErr = err as { response?: { data?: { message?: string, error?: string } } };
+      const msg = axErr.response?.data?.message || axErr.response?.data?.error || "Gagal mengimpor data karyawan.";
+      setError(msg);
+    } finally {
+      setImporting(false);
+      e.target.value = ''; // reset input
+    }
+  };
+
   const totalPages = employees?.last_page || 1;
 
   return (
@@ -184,12 +223,41 @@ export default function EmployeeManagement() {
           <h1>Manajemen Karyawan</h1>
           <p>Kelola data karyawan RS Citra Husada</p>
         </div>
-        <button className="emp-add-btn" onClick={openAddModal}>
-          <svg viewBox="0 0 24 24">
-            <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          </svg>
-          Tambah Karyawan
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            style={{ display: 'none' }}
+            id="import-employee"
+            onChange={handleImport}
+          />
+          <button 
+            className="emp-btn-secondary" 
+            onClick={() => document.getElementById('import-employee')?.click()}
+            disabled={importing}
+          >
+            {importing ? 'Mengimpor...' : (
+              <>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M5 20h14v-2H5v2zM12 2L5 9h4v8h6V9h4l-7-7z"/></svg>
+                Import
+              </>
+            )}
+          </button>
+          <button className="emp-btn-secondary" onClick={handleExport} disabled={exporting}>
+            {exporting ? 'Mengekspor...' : (
+              <>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                Export
+              </>
+            )}
+          </button>
+          <button className="emp-add-btn" onClick={openAddModal}>
+            <svg viewBox="0 0 24 24">
+              <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+            Tambah Karyawan
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

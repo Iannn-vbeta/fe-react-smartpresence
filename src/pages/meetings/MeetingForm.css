@@ -242,77 +242,299 @@
 .btn-submit:hover { background: #1e40af; }
 .btn-submit:disabled { background: #93c5fd; cursor: not-allowed; }
 
-/* ─── Employee search modal ─── */
-.employee-search-input {
-  width: 100%;
-  padding: 0.6rem 0.85rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
-  outline: none;
-}
-
-.employee-search-input:focus { border-color: #3b82f6; }
-
-.employee-search-list {
-  max-height: 320px;
-  overflow-y: auto;
+/* ─── Division & Participant Selection Modal ─── */
+.division-modal-box {
+  background: #fff;
+  border-radius: 14px;
+  max-width: 540px;
+  width: 92%;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  box-shadow: 0 12px 48px rgba(0,0,0,.18);
+  overflow: hidden;
 }
 
-.employee-search-item {
+.division-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.division-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.division-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.division-modal-close:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Search */
+.division-search-wrapper {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.division-search-wrapper svg {
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.division-search-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem 0.6rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.division-search-input:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+/* Division list */
+.division-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  min-height: 200px;
+  max-height: 420px;
+}
+
+.division-loading {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+/* Division section */
+.division-section {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.division-section:last-child {
+  border-bottom: none;
+}
+
+/* Division header */
+.division-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.division-header:hover {
+  background: #f8fafc;
+}
+
+.division-header-left {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-  border: 1px solid transparent;
 }
 
-.employee-search-item:hover { background: #f1f5f9; }
-
-.employee-search-item.selected {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-}
-
-.employee-search-item-avatar {
+.division-icon {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background: #3b82f6;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.75rem;
+  border-radius: 8px;
+  background: #eff6ff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.employee-search-item-info { flex: 1; }
+.division-title-info {
+  display: flex;
+  flex-direction: column;
+}
 
-.employee-search-item-name {
+.division-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.division-count {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.division-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Select All label */
+.division-select-all {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.division-select-all input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1d4ed8;
+  cursor: pointer;
+}
+
+/* Chevron */
+.division-chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.division-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+/* Members */
+.division-members {
+  padding: 0 1.5rem 0.5rem 1.5rem;
+}
+
+.division-no-members {
+  padding: 0.5rem 0 0.5rem 2.75rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.division-member-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-left: 0.5rem;
+}
+
+.division-member-item:hover {
+  background: #f8fafc;
+}
+
+.division-member-item.checked {
+  background: #eff6ff;
+}
+
+.member-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #1d4ed8;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.member-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
   font-weight: 600;
   font-size: 0.85rem;
   color: #0f172a;
 }
 
-.employee-search-item-detail {
+.member-position {
   font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Footer */
+.division-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+
+.division-selected-count {
+  font-size: 0.85rem;
+  font-weight: 500;
   color: #64748b;
 }
 
-.employee-search-loading {
-  padding: 1rem;
-  text-align: center;
-  color: #94a3b8;
+.division-modal-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.division-modal-actions .btn-cancel {
+  padding: 0.5rem 1.25rem;
   font-size: 0.85rem;
+}
+
+.btn-division-save {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-division-save:hover {
+  background: #16a34a;
 }
 
 /* ─── RESPONSIVE ─── */
