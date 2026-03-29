@@ -38,8 +38,8 @@ export const meetingService = {
     return res.data;
   },
 
-  async manualAttendance(meetingId: number, participantId: number) {
-    const res = await api.patch(`/meeting/${meetingId}/attendance/${participantId}`);
+  async manualAttendance(meetingId: number, participantId: number, status: 'hadir' | 'tidak_hadir' = 'hadir') {
+    const res = await api.patch(`/meeting/${meetingId}/attendance/${participantId}`, { status });
     return res.data;
   },
 };

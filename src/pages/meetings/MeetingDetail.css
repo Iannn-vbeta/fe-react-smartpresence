@@ -197,77 +197,236 @@
   color: #64748b;
 }
 
-.attendance-actions {
+/* ─── Attendance time column ─── */
+.attendance-time {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #64748b;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.attendance-time svg {
+  width: 18px;
+  height: 18px;
+  fill: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* ─── Attendance dropdown ─── */
+.attendance-dropdown-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.attendance-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.attendance-dropdown-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.attendance-dropdown-btn .dropdown-chevron {
+  width: 18px;
+  height: 18px;
+  margin-left: 0.1rem;
+  opacity: 0.7;
+}
+
+.attendance-dropdown-btn.hadir {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.attendance-dropdown-btn.hadir:hover {
+  background: #bbf7d0;
+}
+
+.attendance-dropdown-btn.tidak-hadir {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.attendance-dropdown-btn.tidak-hadir:hover {
+  background: #fecaca;
+}
+
+/* ─── Dropdown menu ─── */
+.attendance-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  min-width: 160px;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-option {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.attendance-status-icon {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
   font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.attendance-status-icon.hadir { color: #22c55e; }
-.attendance-status-icon.tidak-hadir { color: #94a3b8; }
-
-.attendance-status-icon svg {
+.dropdown-option svg {
   width: 18px;
   height: 18px;
   fill: currentColor;
 }
 
-.manual-attend-btn {
-  background: none;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.75rem;
-  color: #475569;
-  cursor: pointer;
-  transition: background 0.15s;
+.dropdown-option.hadir {
+  color: #16a34a;
 }
 
-.manual-attend-btn:hover { background: #f1f5f9; }
+.dropdown-option.hadir:hover {
+  background: #f0fdf4;
+}
 
-/* ─── Scan modal ─── */
-.scan-input {
+.dropdown-option.hadir.active {
+  background: #dcfce7;
+}
+
+.dropdown-option.tidak-hadir {
+  color: #dc2626;
+}
+
+.dropdown-option.tidak-hadir:hover {
+  background: #fef2f2;
+}
+
+.dropdown-option.tidak-hadir.active {
+  background: #fee2e2;
+}
+
+/* ─── Scan modal (Circular Animation Design) ─── */
+.modal-boxscan {
+  background: transparent;
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid #3b82f6;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  text-align: center;
+  max-width: 320px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   outline: none;
-  margin-bottom: 0.75rem;
-  letter-spacing: 0.05em;
 }
 
-.scan-input:focus {
-  border-color: #1d4ed8;
-  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+.scan-animation-container {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
-.scan-result {
-  padding: 0.75rem;
+.scan-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  /* Mix of yellow and green */
+  border: 6px solid transparent;
+  border-top-color: #22c55e; /* Green */
+  border-right-color: #eab308; /* Yellow */
+  border-bottom-color: #22c55e; /* Green */
+  border-left-color: #eab308; /* Yellow */
+  animation: spin 1.5s linear infinite;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.2), 0 0 15px rgba(234, 179, 8, 0.2);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.scan-text {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  padding: 0 1rem;
+}
+
+/* Hidden input that still accepts focus and typing from barcode scanner */
+.scan-hidden-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  top: 0;
+  left: 0;
+  border: none;
+  outline: none;
+}
+
+.scan-feedback {
+  padding: 0.6rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
-  margin-bottom: 0.75rem;
+  text-align: center;
+  width: 100%;
+  animation: dropdownFadeIn 0.2s ease;
+  margin-bottom: 1rem;
 }
 
-.scan-result.success {
+.scan-feedback.success {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   color: #16a34a;
 }
 
-.scan-result.error {
+.scan-feedback.error {
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #dc2626;
+}
+
+.scan-help-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 0;
 }
 
 /* ─── Footer ─── */

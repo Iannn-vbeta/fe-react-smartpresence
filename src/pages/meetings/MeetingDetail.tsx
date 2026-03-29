@@ -20,6 +20,7 @@ export default function MeetingDetail() {
   const [data, setData] = useState<MeetingDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
 
   /* scan modal */
   const [showScan, setShowScan] = useState(false);
@@ -42,6 +43,13 @@ export default function MeetingDetail() {
   }, [id]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  /* close dropdown on outside click */
+  useEffect(() => {
+    const handler = () => setOpenDropdown(null);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, []);
 
   /* scan barcode */
   const handleScan = async () => {
@@ -66,11 +74,12 @@ export default function MeetingDetail() {
     }
   };
 
-  /* manual attendance */
-  const handleManualAttendance = async (p: ParticipantWithAttendance) => {
+  /* manual attendance — toggle status */
+  const handleChangeStatus = async (p: ParticipantWithAttendance, newStatus: 'hadir' | 'tidak_hadir') => {
     if (!id) return;
+    setOpenDropdown(null);
     try {
-      await meetingService.manualAttendance(Number(id), p.id);
+      await meetingService.manualAttendance(Number(id), p.id, newStatus);
       fetchData();
     } catch {
       // ignore
@@ -95,10 +104,6 @@ export default function MeetingDetail() {
           <div className="attendance-counter">
             <span className="attendance-counter-value hadir">{attendance_summary.hadir}</span>
             <span className="attendance-counter-label">Hadir</span>
-          </div>
-          <div className="attendance-counter">
-            <span className="attendance-counter-value terlambat">0</span>
-            <span className="attendance-counter-label">Terlambat</span>
           </div>
           <div className="attendance-counter">
             <span className="attendance-counter-value tidak-hadir">{attendance_summary.tidak_hadir}</span>
@@ -170,21 +175,49 @@ export default function MeetingDetail() {
               <div className="attendance-avatar">{initials(p.employee.full_name)}</div>
               <div className="attendance-info">
                 <div className="attendance-name">{p.employee.full_name}</div>
+                <div className="attendance-subtext">
                   {[p.employee.position?.position, p.employee.work_unit?.work_unit, `NIP: ${p.employee.nip}`].filter(Boolean).join(' • ')}
+                </div>
               </div>
-              <div className="attendance-actions">
-                {p.status === 'hadir' ? (
-                  <span className="attendance-status-icon hadir">
-                    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-                    {p.check_in_time ? formatTime(p.check_in_time) : 'Hadir'}
-                  </span>
-                ) : (
-                  <>
-                    <span className="attendance-status-icon tidak-hadir">
-                      <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
-                    </span>
-                    <button className="manual-attend-btn" onClick={() => handleManualAttendance(p)}>Hadirkan</button>
-                  </>
+              <div className="attendance-time">
+                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                <span>{p.check_in_time ? formatTime(p.check_in_time) : '-'}</span>
+              </div>
+              <div className="attendance-dropdown-wrapper" onClick={e => e.stopPropagation()}>
+                <button
+                  className={`attendance-dropdown-btn ${p.status === 'hadir' ? 'hadir' : 'tidak-hadir'}`}
+                  onClick={() => setOpenDropdown(openDropdown === p.id ? null : p.id)}
+                >
+                  {p.status === 'hadir' ? (
+                    <>
+                      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                      Hadir
+                    </>
+                  ) : (
+                    <>
+                      <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                      Tidak Hadir
+                    </>
+                  )}
+                  <svg className="dropdown-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </button>
+                {openDropdown === p.id && (
+                  <div className="attendance-dropdown-menu">
+                    <button
+                      className={`dropdown-option hadir${p.status === 'hadir' ? ' active' : ''}`}
+                      onClick={() => handleChangeStatus(p, 'hadir')}
+                    >
+                      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                      Hadir
+                    </button>
+                    <button
+                      className={`dropdown-option tidak-hadir${p.status === 'tidak_hadir' ? ' active' : ''}`}
+                      onClick={() => handleChangeStatus(p, 'tidak_hadir')}
+                    >
+                      <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                      Tidak Hadir
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -201,33 +234,36 @@ export default function MeetingDetail() {
       {/* Scan barcode modal */}
       {showScan && (
         <div className="modal-overlay" onClick={() => setShowScan(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3>Scan Barcode / Input NIP</h3>
-            <p style={{ color: '#64748b', fontSize: '0.85rem', margin: '0 0 1rem' }}>
-              Arahkan barcode scanner ke kolom input atau ketik NIP secara manual.
-            </p>
+          <div className="modal-boxscan" onClick={e => e.stopPropagation()}>
+            <div className="scan-animation-container">
+              <div className="scan-spinner"></div>
+              <div className="scan-text">
+                presensi sedang<br />berlangsung
+              </div>
+            </div>
+            
+            {/* Hidden input to keep functionality working for barcode scanner */}
             <input
               ref={scanRef}
-              className="scan-input"
+              className="scan-hidden-input"
               type="text"
-              placeholder="Masukkan NIP..."
               value={scanNip}
               onChange={e => setScanNip(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleScan(); }}
               autoFocus
               disabled={scanning}
             />
+            
+            {/* Show success/error briefly below the circle if needed */}
             {scanResult && (
-              <div className={`scan-result ${scanResult.ok ? 'success' : 'error'}`}>
+              <div className={`scan-feedback ${scanResult.ok ? 'success' : 'error'}`}>
                 {scanResult.msg}
               </div>
             )}
-            <div className="modal-actions">
-              <button className="modal-cancel-btn" onClick={() => setShowScan(false)}>Tutup</button>
-              <button className="btn-submit" onClick={handleScan} disabled={scanning || !scanNip.trim()}>
-                {scanning ? 'Memproses...' : 'Proses'}
-              </button>
-            </div>
+            
+            <p className="scan-help-text">
+              Silakan scan barcode atau ketik NIP lalu tekan Enter
+            </p>
           </div>
         </div>
       )}

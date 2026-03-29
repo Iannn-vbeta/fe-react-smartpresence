@@ -58,13 +58,11 @@ const menuItems = [
 ];
 
 interface SidebarProps {
-  collapsed: boolean;
   mobileOpen: boolean;
-  onToggleCollapse: () => void;
   onToggleMobile: () => void;
 }
 
-export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse, onToggleMobile }: SidebarProps) {
+export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
   const { logout } = useAuthStore();
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -80,7 +78,7 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse, onTog
     navigate('/login', { replace: true });
   };
 
-  const sidebarClass = `sidebar${collapsed ? ' collapsed' : ''}${mobileOpen ? ' mobile-open' : ''}`;
+  const sidebarClass = `sidebar${mobileOpen ? ' mobile-open' : ''}`;
 
   return (
     <>
@@ -99,12 +97,6 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleCollapse, onTog
 
       {/* Sidebar */}
       <aside className={sidebarClass}>
-        {/* Collapse toggle – desktop only */}
-        <button className="sidebar-toggle" onClick={onToggleCollapse} aria-label="Toggle sidebar">
-          <svg viewBox="0 0 24 24">
-            <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
-          </svg>
-        </button>
 
         {/* Brand */}
         <div className="sidebar-brand">

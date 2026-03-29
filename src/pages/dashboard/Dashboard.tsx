@@ -73,10 +73,10 @@ function formatTime(dateStr: string): string {
 
 function getStatusLabel(status: string): string {
   const map: Record<string, string> = {
-    scheduled: 'Menunggu',
-    in_progress: 'Berlangsung',
-    completed: 'Selesai',
-    cancelled: 'Dibatalkan',
+    menunggu: 'Menunggu',
+    berlangsung: 'Berlangsung',
+    selesai: 'Selesai',
+    dibatalkan: 'Dibatalkan',
   };
   return map[status] || status;
 }

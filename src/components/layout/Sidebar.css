@@ -4,7 +4,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
+  bottom: 0; /* stretches to absolute bottom on all devices */
   width: 240px;
   background: linear-gradient(180deg, #1e3a8a 0%, #1d4ed8 100%);
   color: #ffffff;
@@ -173,86 +173,24 @@
   height: 22px;
 }
 
-/* ─── Collapsed state (desktop) ─── */
-.sidebar.collapsed {
-  width: 68px;
-}
-
-.sidebar.collapsed .sidebar-brand-text {
-  display: none;
-}
-
-.sidebar.collapsed .sidebar-nav-item span {
-  display: none;
-}
-
-.sidebar.collapsed .sidebar-logout-btn span {
-  display: none;
-}
-
-.sidebar.collapsed .sidebar-nav-item {
-  justify-content: center;
-  padding: 0.7rem;
-}
-
-.sidebar.collapsed .sidebar-logout-btn {
-  justify-content: center;
-  padding: 0.7rem;
-}
-
-/* ─── Toggle collapse btn ─── */
-.sidebar-toggle {
-  position: absolute;
-  top: 1.5rem;
-  right: -14px;
-  width: 28px;
-  height: 28px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  z-index: 10;
-}
-
-.sidebar-toggle svg {
-  width: 14px;
-  height: 14px;
-  fill: #475569;
-  transition: transform 0.3s ease;
-}
-
-.sidebar.collapsed .sidebar-toggle svg {
-  transform: rotate(180deg);
-}
-
-.sidebar-toggle:hover {
-  background: #f1f5f9;
-}
 
 /* ─── RESPONSIVE ─── */
 @media screen and (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
     width: 260px;
+    bottom: 0;
   }
 
   .sidebar.mobile-open {
     transform: translateX(0);
   }
 
-  .sidebar-toggle {
-    display: none;
-  }
-
   .sidebar-hamburger {
     display: flex;
   }
 
+  /* Overlay */
   .sidebar-overlay {
     display: block;
     pointer-events: none;
@@ -260,5 +198,31 @@
 
   .sidebar-overlay.visible {
     pointer-events: auto;
+  }
+
+  /* Bigger icons on mobile for better touch targets */
+  .sidebar-nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar-nav-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar-nav-item {
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .sidebar-logout-btn {
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .sidebar-brand-logo {
+    width: 36px;
+    height: 36px;
   }
 }
