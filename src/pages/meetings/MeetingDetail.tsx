@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { meetingService } from '../../services/meetingService';
 import type { MeetingDetailData, ParticipantWithAttendance } from '../../types/meeting';
 import './MeetingDetail.css';
@@ -16,7 +16,6 @@ function formatDate(d: string) {
 
 export default function MeetingDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [data, setData] = useState<MeetingDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +58,6 @@ export default function MeetingDetail() {
     try {
       const res = await meetingService.scanBarcode(Number(id), scanNip.trim());
       setScanResult({ ok: true, msg: res.message || 'Absensi berhasil!' });
-      setScanNip('');
       fetchData();
     } catch (err: unknown) {
       let msg = 'Gagal memproses scan.';
@@ -70,6 +68,7 @@ export default function MeetingDetail() {
       setScanResult({ ok: false, msg });
     } finally {
       setScanning(false);
+      setScanNip(''); // Selalu bersihkan input setelah proses (baik sukses maupun gagal)
       setTimeout(() => scanRef.current?.focus(), 100);
     }
   };
@@ -225,11 +224,7 @@ export default function MeetingDetail() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="detail-footer">
-        <button className="btn-cancel" onClick={() => navigate('/meetings')}>Batal</button>
-        <button className="btn-submit" onClick={() => navigate('/meetings')}>Simpan Presensi</button>
-      </div>
+
 
       {/* Scan barcode modal */}
       {showScan && (
