@@ -257,7 +257,7 @@ export default function MeetingDetail() {
             )}
             
             <p className="scan-help-text">
-              Silakan scan barcode atau ketik NIP lalu tekan Enter
+              Silakan scan barcode
             </p>
           </div>
         </div>
