@@ -1,0 +1,280 @@
+import { useState, useEffect, useCallback } from 'react';
+import { workUnitService } from '../../services/employeeService';
+import type { WorkUnit } from '../../types/employee';
+import './WorkUnitManagement.css';
+
+export default function WorkUnitManagement() {
+  /* State */
+  const [workUnits, setWorkUnits] = useState<WorkUnit[]>([]);
+  const [filtered, setFiltered] = useState<WorkUnit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  /* Filter */
+  const [searchInput, setSearchInput] = useState('');
+
+  /* Modal */
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState<WorkUnit | null>(null);
+
+  /* Form */
+  const [formValue, setFormValue] = useState('');
+  const [formError, setFormError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  /* --- Employee count (from employees list if available) --- */
+  // We'll show a placeholder count of 0 since we only have basic WorkUnit data
+  // If BE provides employee_count field, it will be used automatically
+
+  const fetchWorkUnits = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await workUnitService.list();
+      setWorkUnits(data);
+      setFiltered(data);
+    } catch {
+      setError('Gagal memuat data unit kerja.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchWorkUnits(); }, [fetchWorkUnits]);
+
+  /* Client-side search filter */
+  useEffect(() => {
+    const q = searchInput.toLowerCase().trim();
+    if (!q) {
+      setFiltered(workUnits);
+    } else {
+      setFiltered(workUnits.filter(u => u.work_unit.toLowerCase().includes(q)));
+    }
+  }, [searchInput, workUnits]);
+
+  /* Open Modals */
+  const openAddModal = () => {
+    setSelectedUnit(null);
+    setFormValue('');
+    setFormError('');
+    setShowFormModal(true);
+  };
+
+  const openEditModal = (unit: WorkUnit) => {
+    setSelectedUnit(unit);
+    setFormValue(unit.work_unit);
+    setFormError('');
+    setShowFormModal(true);
+  };
+
+  const openDeleteModal = (unit: WorkUnit) => {
+    setSelectedUnit(unit);
+    setShowDeleteModal(true);
+  };
+
+  /* Actions */
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formValue.trim()) {
+      setFormError('Nama unit kerja tidak boleh kosong.');
+      return;
+    }
+    setSaving(true);
+    try {
+      if (selectedUnit) {
+        await workUnitService.update(selectedUnit.id, { work_unit: formValue.trim() });
+      } else {
+        await workUnitService.store({ work_unit: formValue.trim() });
+      }
+      setShowFormModal(false);
+      fetchWorkUnits();
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axErr = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+        const serverMsg = axErr.response?.data?.errors?.work_unit?.[0]
+          || axErr.response?.data?.message
+          || 'Gagal menyimpan data.';
+        setFormError(serverMsg);
+      } else {
+        setFormError('Gagal menyimpan data.');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedUnit) return;
+    setSaving(true);
+    try {
+      await workUnitService.destroy(selectedUnit.id);
+      setShowDeleteModal(false);
+      fetchWorkUnits();
+    } catch {
+      setError('Gagal menghapus unit kerja.');
+      setShowDeleteModal(false);
+    } finally {
+      setSaving(false);
+      setSelectedUnit(null);
+    }
+  };
+
+  return (
+    <div className="wu-management">
+      {/* Header */}
+      <div className="wu-page-header">
+        <div className="wu-page-header-text">
+          <h1>Manajemen Unit Kerja</h1>
+          <p>Kelola data unit kerja RS Citra Husada</p>
+        </div>
+        <button className="wu-add-btn" onClick={openAddModal}>
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Tambah Unit Kerja
+        </button>
+      </div>
+
+      {/* Filter */}
+      <div className="wu-filters">
+        <label>Cari Unit Kerja</label>
+        <div className="wu-filter-input-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input
+            type="text"
+            placeholder="Cari nama unit kerja..."
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {error && <div className="wu-error">{error}</div>}
+
+      {/* Table */}
+      <div className="wu-table-wrapper">
+        {loading ? (
+          <div className="wu-loading">Memuat data unit kerja...</div>
+        ) : filtered.length === 0 ? (
+          <div className="wu-empty">Tidak ada data unit kerja ditemukan.</div>
+        ) : (
+          <table className="wu-table">
+            <thead>
+              <tr>
+                <th style={{ width: '60px' }}>No</th>
+                <th>Nama Unit Kerja</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((unit, idx) => (
+                <tr key={unit.id}>
+                  <td className="wu-no-cell">{idx + 1}</td>
+                  <td>
+                    <div className="wu-name-cell">
+                      <div className="wu-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 2v2H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-4V2h-4zm1 2h2v3h-2V4zm-5 4h12v12H6V8zm5 2v2H9v2h2v2h2v-2h2v-2h-2v-2h-2z"/></svg>
+                      </div>
+                      <span>{unit.work_unit}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="wu-action-group">
+                      <button
+                        className="wu-action-btn edit"
+                        title="Edit"
+                        onClick={() => openEditModal(unit)}
+                      >
+                        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                      </button>
+                      <button
+                        className="wu-action-btn del"
+                        title="Hapus"
+                        onClick={() => openDeleteModal(unit)}
+                      >
+                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Add / Edit Modal */}
+      {showFormModal && (
+        <div className="wu-modal-overlay" onClick={() => !saving && setShowFormModal(false)}>
+          <div className="wu-modal-box" onClick={e => e.stopPropagation()}>
+            <div className="wu-modal-header">
+              <div>
+                <h3>{selectedUnit ? 'Edit Unit Kerja' : 'Tambah Unit Kerja'}</h3>
+                <p>{selectedUnit ? 'Perbarui nama unit kerja RS Citra Husada' : 'Masukkan nama unit kerja baru RS Citra Husada'}</p>
+              </div>
+              <button className="wu-modal-close" onClick={() => !saving && setShowFormModal(false)}>✕</button>
+            </div>
+            <form onSubmit={handleFormSubmit}>
+              <div className="wu-modal-body">
+                <div className="wu-modal-field">
+                  <label>Nama Unit Kerja <span className="wu-required">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Masukkan nama unit kerja"
+                    value={formValue}
+                    onChange={e => { setFormValue(e.target.value); setFormError(''); }}
+                    autoFocus
+                  />
+                  {formError && <div className="wu-field-error">{formError}</div>}
+                </div>
+              </div>
+              <div className="wu-modal-footer">
+                <button
+                  type="button"
+                  className="wu-btn-cancel"
+                  onClick={() => setShowFormModal(false)}
+                  disabled={saving}
+                >
+                  Batal
+                </button>
+                <button type="submit" className="wu-btn-submit" disabled={saving}>
+                  {saving ? 'Menyimpan...' : selectedUnit ? 'Simpan Perubahan' : 'Simpan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="wu-modal-overlay" onClick={() => !saving && setShowDeleteModal(false)}>
+          <div className="wu-delete-modal-box" onClick={e => e.stopPropagation()}>
+            <div className="wu-delete-icon">
+              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </div>
+            <h3>Konfirmasi Hapus Unit Kerja</h3>
+            <p>
+              Apakah Anda yakin ingin menghapus unit kerja <strong>{selectedUnit?.work_unit}</strong>? Tindakan ini tidak dapat dibatalkan.
+            </p>
+            <div className="wu-delete-actions">
+              <button
+                className="wu-btn-cancel"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={saving}
+              >
+                Batal
+              </button>
+              <button
+                className="wu-btn-danger"
+                onClick={handleDeleteConfirm}
+                disabled={saving}
+              >
+                {saving ? 'Menghapus...' : 'Hapus'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

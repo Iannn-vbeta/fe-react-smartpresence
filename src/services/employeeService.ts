@@ -65,4 +65,18 @@ export const workUnitService = {
     const res = await api.get("/work-units");
     return res.data.data || [];
   },
+
+  async store(data: { work_unit: string }): Promise<WorkUnit> {
+    const res = await api.post("/work-units", data);
+    return res.data.data;
+  },
+
+  async update(id: number, data: { work_unit: string }): Promise<WorkUnit> {
+    const res = await api.put(`/work-units/${id}`, data);
+    return res.data.data;
+  },
+
+  async destroy(id: number): Promise<void> {
+    await api.delete(`/work-units/${id}`);
+  },
 };

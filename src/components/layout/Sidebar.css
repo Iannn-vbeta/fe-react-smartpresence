@@ -25,12 +25,18 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.sidebar-brand-logo {
+.sidebar-brand-logo-svg {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
-  object-fit: cover;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-brand-logo-svg svg {
+  width: 40px;
+  height: 40px;
 }
 
 .sidebar-brand-text h2 {

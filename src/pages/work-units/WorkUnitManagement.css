@@ -1,0 +1,424 @@
+/* WorkUnitManagement.css */
+
+/* ─── Page Header ─── */
+.wu-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.wu-page-header-text h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.wu-page-header-text p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.wu-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.wu-add-btn:hover { background: #1e40af; }
+.wu-add-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ─── Filter ─── */
+.wu-filters {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.wu-filters label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.wu-filter-input-wrapper {
+  position: relative;
+  max-width: 480px;
+}
+
+.wu-filter-input-wrapper svg {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  fill: #94a3b8;
+  pointer-events: none;
+}
+
+.wu-filter-input-wrapper input {
+  width: 100%;
+  padding: 0.65rem 0.85rem 0.65rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.wu-filter-input-wrapper input:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+/* ─── Alerts ─── */
+.wu-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* ─── Table ─── */
+.wu-table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.wu-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 400px;
+}
+
+.wu-table th {
+  text-align: left;
+  padding: 1rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.wu-table td {
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.wu-table tbody tr:hover { background: #f8fafc; }
+.wu-table tbody tr:last-child td { border-bottom: none; }
+
+.wu-no-cell {
+  color: #94a3b8;
+  font-size: 0.825rem;
+}
+
+.wu-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.wu-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wu-icon svg { width: 20px; height: 20px; fill: #3b82f6; }
+
+/* ─── Action Buttons ─── */
+.wu-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wu-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  background: none;
+}
+
+.wu-action-btn svg { width: 18px; height: 18px; }
+.wu-action-btn.edit svg { fill: #3b82f6; }
+.wu-action-btn.del svg { fill: #ef4444; }
+.wu-action-btn.edit:hover { background: #eff6ff; }
+.wu-action-btn.del:hover { background: #fef2f2; }
+
+/* ─── Loading / Empty ─── */
+.wu-loading, .wu-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* ─── Modal Overlay ─── */
+.wu-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* ─── Form Modal ─── */
+.wu-modal-box {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.wu-modal-header {
+  padding: 1.5rem 2rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.wu-modal-header h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.wu-modal-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.wu-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.wu-modal-close:hover { color: #475569; }
+
+.wu-modal-body {
+  padding: 0.75rem 2rem 1rem;
+}
+
+.wu-modal-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  margin-bottom: 0.4rem;
+}
+
+.wu-required { color: #dc2626; margin-left: 2px; }
+
+.wu-modal-field input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #0f172a;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.wu-modal-field input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.wu-field-error {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+}
+
+.wu-modal-footer {
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ─── Delete Modal ─── */
+.wu-delete-modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.wu-delete-icon {
+  width: 56px;
+  height: 56px;
+  background: #fef2f2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.wu-delete-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: #dc2626;
+}
+
+.wu-delete-modal-box h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.wu-delete-modal-box p {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin: 0 0 1.5rem;
+  line-height: 1.6;
+}
+
+.wu-delete-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* ─── Shared Buttons ─── */
+.wu-btn-cancel {
+  background: #fff;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.wu-btn-cancel:hover { background: #f8fafc; }
+.wu-btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.wu-btn-submit {
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.wu-btn-submit:hover { background: #1e40af; }
+.wu-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.wu-btn-danger {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.wu-btn-danger:hover { background: #b91c1c; }
+.wu-btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ─── Responsive ─── */
+@media screen and (max-width: 640px) {
+  .wu-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wu-add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wu-modal-header {
+    padding: 1.25rem 1.25rem 0.75rem;
+  }
+
+  .wu-modal-body {
+    padding: 0.75rem 1.25rem 1rem;
+  }
+
+  .wu-modal-footer {
+    padding: 1rem 1.25rem;
+  }
+
+  .wu-filter-input-wrapper {
+    max-width: 100%;
+  }
+}

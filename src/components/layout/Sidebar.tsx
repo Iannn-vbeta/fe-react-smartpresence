@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { authService } from '../../services/authService';
-import logo from '../../assets/images/logo.jpeg';
 import './Sidebar.css';
 
 const menuItems = [
@@ -49,10 +48,10 @@ const menuItems = [
     ),
   },
   {
-    label: 'Pengaturan',
-    path: '/settings',
+    label: 'Unit Kerja',
+    path: '/work-units',
     icon: (
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M10 2v2H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-4V2h-4zm1 2h2v3h-2V4zm-5 4h12v12H6V8zm5 2v2H9v2h2v2h2v-2h2v-2h-2v-2h-2z"/></svg>
     ),
   },
 ];
@@ -100,7 +99,13 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
 
         {/* Brand */}
         <div className="sidebar-brand">
-          <img src={logo} alt="Logo" className="sidebar-brand-logo" />
+          <div className="sidebar-brand-logo-svg">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="8" fill="#ffffff" fillOpacity="0.15"/>
+              <path d="M20 8C13.373 8 8 13.373 8 20C8 26.627 13.373 32 20 32C26.627 32 32 26.627 32 20C32 13.373 26.627 8 20 8Z" fill="white" fillOpacity="0.2"/>
+              <path d="M22 14H18V18H14V22H18V26H22V22H26V18H22V14Z" fill="white"/>
+            </svg>
+          </div>
           <div className="sidebar-brand-text">
             <h2>RS CITRA HUSADA</h2>
             <p>Smart Presence</p>

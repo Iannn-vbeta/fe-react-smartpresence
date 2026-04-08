@@ -10,6 +10,7 @@ import EmployeeManagement from '../pages/employees/EmployeeManagement';
 import MeetingManagement from '../pages/meetings/MeetingManagement';
 import MeetingForm from '../pages/meetings/MeetingForm';
 import MeetingDetail from '../pages/meetings/MeetingDetail';
+import WorkUnitManagement from '../pages/work-units/WorkUnitManagement';
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuthStore();
@@ -38,7 +39,7 @@ export default function AppRoutes() {
           <Route path="/rooms" element={<RoomManagement />} />
           <Route path="/users" element={<UserManagement />} />
           <Route path="/reports" element={<PlaceholderPage title="Laporan" />} />
-          <Route path="/settings" element={<PlaceholderPage title="Pengaturan" />} />
+          <Route path="/work-units" element={<WorkUnitManagement />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
