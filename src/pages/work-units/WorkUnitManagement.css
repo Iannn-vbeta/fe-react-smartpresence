@@ -149,26 +149,16 @@
   font-size: 0.825rem;
 }
 
-.wu-name-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+.wu-name-text {
   font-weight: 600;
   color: #0f172a;
+  font-size: 0.875rem;
 }
 
-.wu-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: #eff6ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.wu-count-cell {
+  color: #475569;
+  font-size: 0.875rem;
 }
-
-.wu-icon svg { width: 20px; height: 20px; fill: #3b82f6; }
 
 /* ─── Action Buttons ─── */
 .wu-action-group {
@@ -203,6 +193,31 @@
   color: #94a3b8;
   font-size: 0.9rem;
 }
+
+/* ─── Pagination ─── */
+.wu-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.825rem;
+  color: #64748b;
+}
+
+.wu-pagination-btns { display: flex; gap: 0.25rem; }
+.wu-pagination-btns button {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #475569;
+}
+.wu-pagination-btns button:hover:not(:disabled) { background: #f1f5f9; }
+.wu-pagination-btns button.active { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+.wu-pagination-btns button:disabled { opacity: 0.4; cursor: default; }
 
 /* ─── Modal Overlay ─── */
 .wu-modal-overlay {
@@ -312,39 +327,24 @@
   text-align: center;
 }
 
-.wu-delete-icon {
-  width: 56px;
-  height: 56px;
-  background: #fef2f2;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.25rem;
-}
-
-.wu-delete-icon svg {
-  width: 28px;
-  height: 28px;
-  fill: #dc2626;
-}
-
 .wu-delete-modal-box h3 {
   margin: 0 0 0.75rem;
   font-size: 1.2rem;
   color: #0f172a;
+  text-align: left;
 }
 
 .wu-delete-modal-box p {
   color: #64748b;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   margin: 0 0 1.5rem;
   line-height: 1.6;
+  text-align: left;
 }
 
 .wu-delete-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 0.75rem;
 }
 

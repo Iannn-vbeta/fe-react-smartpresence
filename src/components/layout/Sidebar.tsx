@@ -51,7 +51,7 @@ const menuItems = [
     label: 'Unit Kerja',
     path: '/work-units',
     icon: (
-      <svg viewBox="0 0 24 24"><path d="M10 2v2H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-4V2h-4zm1 2h2v3h-2V4zm-5 4h12v12H6V8zm5 2v2H9v2h2v2h2v-2h2v-2h-2v-2h-2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
     ),
   },
 ];
@@ -101,9 +101,8 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
         <div className="sidebar-brand">
           <div className="sidebar-brand-logo-svg">
             <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="8" fill="#ffffff" fillOpacity="0.15"/>
-              <path d="M20 8C13.373 8 8 13.373 8 20C8 26.627 13.373 32 20 32C26.627 32 32 26.627 32 20C32 13.373 26.627 8 20 8Z" fill="white" fillOpacity="0.2"/>
-              <path d="M22 14H18V18H14V22H18V26H22V22H26V18H22V14Z" fill="white"/>
+              <rect width="40" height="40" rx="8" fill="#ffffff" fillOpacity="0.18"/>
+              <path d="M26 12h-3.18C22.4 10.84 21.3 10 20 10c-1.3 0-2.4.84-2.82 2H14c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V14c0-1.1-.9-2-2-2zm-6 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm1 14h-6v-2h6v2zm3-4H16v-2h8v2zm0-4H16v-2h8v2z" fill="white"/>
             </svg>
           </div>
           <div className="sidebar-brand-text">

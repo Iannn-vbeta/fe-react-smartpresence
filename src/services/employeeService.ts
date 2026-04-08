@@ -61,22 +61,29 @@ export const employeeTypeService = {
 };
 
 export const workUnitService = {
+  /* List simpel untuk dropdown (tanpa pagination / employees_count) */
   async list(): Promise<WorkUnit[]> {
     const res = await api.get("/work-units");
     return res.data.data || [];
   },
 
+  /* List paginated untuk halaman manajemen (dengan employees_count) */
+  async listPaginated(params?: Record<string, string | number>): Promise<{ data: PaginatedResponse<WorkUnit & { employees_count?: number }> }> {
+    const res = await api.get("/work-units-manage", { params });
+    return res.data;
+  },
+
   async store(data: { work_unit: string }): Promise<WorkUnit> {
-    const res = await api.post("/work-units", data);
+    const res = await api.post("/work-unit", data);
     return res.data.data;
   },
 
   async update(id: number, data: { work_unit: string }): Promise<WorkUnit> {
-    const res = await api.put(`/work-units/${id}`, data);
+    const res = await api.patch(`/work-unit/${id}`, data);
     return res.data.data;
   },
 
   async destroy(id: number): Promise<void> {
-    await api.delete(`/work-units/${id}`);
+    await api.delete(`/work-unit/${id}`);
   },
 };

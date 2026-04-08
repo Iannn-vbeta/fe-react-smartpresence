@@ -1,57 +1,53 @@
 import { useState, useEffect, useCallback } from 'react';
 import { workUnitService } from '../../services/employeeService';
-import type { WorkUnit } from '../../types/employee';
+import type { WorkUnit, PaginatedResponse } from '../../types/employee';
 import './WorkUnitManagement.css';
+
+type WorkUnitWithCount = WorkUnit & { employees_count?: number };
 
 export default function WorkUnitManagement() {
   /* State */
-  const [workUnits, setWorkUnits] = useState<WorkUnit[]>([]);
-  const [filtered, setFiltered] = useState<WorkUnit[]>([]);
+  const [workUnits, setWorkUnits] = useState<PaginatedResponse<WorkUnitWithCount> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   /* Filter */
+  const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [page, setPage] = useState(1);
 
   /* Modal */
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedUnit, setSelectedUnit] = useState<WorkUnit | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<WorkUnitWithCount | null>(null);
 
   /* Form */
   const [formValue, setFormValue] = useState('');
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
 
-  /* --- Employee count (from employees list if available) --- */
-  // We'll show a placeholder count of 0 since we only have basic WorkUnit data
-  // If BE provides employee_count field, it will be used automatically
-
   const fetchWorkUnits = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await workUnitService.list();
-      setWorkUnits(data);
-      setFiltered(data);
+      const params: Record<string, string | number> = { page, per_page: 10 };
+      if (search) params.search = search;
+      const res = await workUnitService.listPaginated(params);
+      setWorkUnits(res.data);
     } catch {
       setError('Gagal memuat data unit kerja.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [search, page]);
 
   useEffect(() => { fetchWorkUnits(); }, [fetchWorkUnits]);
 
-  /* Client-side search filter */
+  /* Debounce search */
   useEffect(() => {
-    const q = searchInput.toLowerCase().trim();
-    if (!q) {
-      setFiltered(workUnits);
-    } else {
-      setFiltered(workUnits.filter(u => u.work_unit.toLowerCase().includes(q)));
-    }
-  }, [searchInput, workUnits]);
+    const t = setTimeout(() => { setSearch(searchInput); setPage(1); }, 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   /* Open Modals */
   const openAddModal = () => {
@@ -61,14 +57,14 @@ export default function WorkUnitManagement() {
     setShowFormModal(true);
   };
 
-  const openEditModal = (unit: WorkUnit) => {
+  const openEditModal = (unit: WorkUnitWithCount) => {
     setSelectedUnit(unit);
     setFormValue(unit.work_unit);
     setFormError('');
     setShowFormModal(true);
   };
 
-  const openDeleteModal = (unit: WorkUnit) => {
+  const openDeleteModal = (unit: WorkUnitWithCount) => {
     setSelectedUnit(unit);
     setShowDeleteModal(true);
   };
@@ -111,14 +107,24 @@ export default function WorkUnitManagement() {
       await workUnitService.destroy(selectedUnit.id);
       setShowDeleteModal(false);
       fetchWorkUnits();
-    } catch {
-      setError('Gagal menghapus unit kerja.');
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axErr = err as { response?: { data?: { message?: string } } };
+        setError(axErr.response?.data?.message || 'Gagal menghapus unit kerja.');
+      } else {
+        setError('Gagal menghapus unit kerja.');
+      }
       setShowDeleteModal(false);
     } finally {
       setSaving(false);
       setSelectedUnit(null);
     }
   };
+
+  const totalPages = workUnits?.last_page || 1;
+
+  /* Row numbering based on pagination */
+  const startNo = workUnits ? (workUnits.current_page - 1) * workUnits.per_page : 0;
 
   return (
     <div className="wu-management">
@@ -154,51 +160,68 @@ export default function WorkUnitManagement() {
       <div className="wu-table-wrapper">
         {loading ? (
           <div className="wu-loading">Memuat data unit kerja...</div>
-        ) : filtered.length === 0 ? (
+        ) : !workUnits || workUnits.data.length === 0 ? (
           <div className="wu-empty">Tidak ada data unit kerja ditemukan.</div>
         ) : (
-          <table className="wu-table">
-            <thead>
-              <tr>
-                <th style={{ width: '60px' }}>No</th>
-                <th>Nama Unit Kerja</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((unit, idx) => (
-                <tr key={unit.id}>
-                  <td className="wu-no-cell">{idx + 1}</td>
-                  <td>
-                    <div className="wu-name-cell">
-                      <div className="wu-icon">
-                        <svg viewBox="0 0 24 24"><path d="M10 2v2H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-4V2h-4zm1 2h2v3h-2V4zm-5 4h12v12H6V8zm5 2v2H9v2h2v2h2v-2h2v-2h-2v-2h-2z"/></svg>
-                      </div>
-                      <span>{unit.work_unit}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="wu-action-group">
-                      <button
-                        className="wu-action-btn edit"
-                        title="Edit"
-                        onClick={() => openEditModal(unit)}
-                      >
-                        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
-                      </button>
-                      <button
-                        className="wu-action-btn del"
-                        title="Hapus"
-                        onClick={() => openDeleteModal(unit)}
-                      >
-                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                      </button>
-                    </div>
-                  </td>
+          <>
+            <table className="wu-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '60px' }}>No</th>
+                  <th>Nama Unit Kerja</th>
+                  <th>Jumlah Karyawan</th>
+                  <th>Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {workUnits.data.map((unit, idx) => (
+                  <tr key={unit.id}>
+                    <td className="wu-no-cell">{startNo + idx + 1}</td>
+                    <td className="wu-name-text">{unit.work_unit}</td>
+                    <td className="wu-count-cell">{unit.employees_count ?? 0} Karyawan</td>
+                    <td>
+                      <div className="wu-action-group">
+                        <button
+                          className="wu-action-btn edit"
+                          title="Edit"
+                          onClick={() => openEditModal(unit)}
+                        >
+                          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                        </button>
+                        <button
+                          className="wu-action-btn del"
+                          title="Hapus"
+                          onClick={() => openDeleteModal(unit)}
+                        >
+                          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Pagination */}
+            <div className="wu-pagination">
+              <span>Menampilkan {workUnits.data.length} dari {workUnits.total} unit kerja</span>
+              <div className="wu-pagination-btns">
+                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}>‹</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => Math.abs(p - page) <= 1 || p === 1 || p === totalPages)
+                  .map((p, idx, arr) => {
+                    const isGap = arr[idx - 1] && p - arr[idx - 1] > 1;
+                    return (
+                      <span key={p}>
+                        {isGap && <button disabled>…</button>}
+                        <button className={p === page ? 'active' : ''} onClick={() => setPage(p)}>{p}</button>
+                      </span>
+                    );
+                  })}
+                <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>›</button>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
@@ -249,9 +272,6 @@ export default function WorkUnitManagement() {
       {showDeleteModal && (
         <div className="wu-modal-overlay" onClick={() => !saving && setShowDeleteModal(false)}>
           <div className="wu-delete-modal-box" onClick={e => e.stopPropagation()}>
-            <div className="wu-delete-icon">
-              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            </div>
             <h3>Konfirmasi Hapus Unit Kerja</h3>
             <p>
               Apakah Anda yakin ingin menghapus unit kerja <strong>{selectedUnit?.work_unit}</strong>? Tindakan ini tidak dapat dibatalkan.
