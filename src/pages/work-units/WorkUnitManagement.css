@@ -125,9 +125,9 @@
 .wu-table th {
   text-align: left;
   padding: 1rem 1.25rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
   border-bottom: 2px solid #e2e8f0;
   background: #f8fafc;
   white-space: nowrap;
