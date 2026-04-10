@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { meetingService } from '../../services/meetingService';
 import type { MeetingDetailData, ParticipantWithAttendance } from '../../types/meeting';
@@ -20,6 +20,7 @@ export default function MeetingDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const [attendanceSearch, setAttendanceSearch] = useState('');
 
   /* scan modal */
   const [showScan, setShowScan] = useState(false);
@@ -85,11 +86,24 @@ export default function MeetingDetail() {
     }
   };
 
+  /* filtered attendance participants based on search */
+  const participants_with_attendance = data?.participants_with_attendance ?? [];
+  const filteredAttendance = useMemo(() => {
+    const q = attendanceSearch.toLowerCase().trim();
+    if (!q) return participants_with_attendance;
+    return participants_with_attendance.filter(p =>
+      p.employee.full_name.toLowerCase().includes(q) ||
+      (p.employee.position?.position || '').toLowerCase().includes(q) ||
+      (p.employee.work_unit?.work_unit || '').toLowerCase().includes(q) ||
+      (p.employee.nip || '').toLowerCase().includes(q)
+    );
+  }, [participants_with_attendance, attendanceSearch]);
+
   if (loading) return <div className="meeting-loading">Memuat detail rapat...</div>;
   if (error) return <div className="meeting-error">{error}</div>;
   if (!data) return null;
 
-  const { meeting, participants_with_attendance, attendance_summary } = data;
+  const { meeting, attendance_summary } = data;
 
   return (
     <div className="meeting-detail-page">
@@ -168,60 +182,85 @@ export default function MeetingDetail() {
           </button>
         </div>
 
-        <div className="attendance-list">
-          {participants_with_attendance.map(p => (
-            <div className={`attendance-item${p.status === 'tidak_hadir' ? ' absent' : ''}`} key={p.id}>
-              <div className="attendance-avatar">{initials(p.employee.full_name)}</div>
-              <div className="attendance-info">
-                <div className="attendance-name">{p.employee.full_name}</div>
-                <div className="attendance-subtext">
-                  {[p.employee.position?.position, p.employee.work_unit?.work_unit, `NIP: ${p.employee.nip}`].filter(Boolean).join(' • ')}
+        {/* Search peserta */}
+        {participants_with_attendance.length > 0 && (
+          <div className="attendance-search-wrapper">
+            <svg className="attendance-search-icon" viewBox="0 0 24 24" width="18" height="18">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#94a3b8"/>
+            </svg>
+            <input
+              type="text"
+              className="attendance-search-input"
+              placeholder="Cari peserta berdasarkan nama, jabatan, atau NIP..."
+              value={attendanceSearch}
+              onChange={e => setAttendanceSearch(e.target.value)}
+            />
+            {attendanceSearch && (
+              <button type="button" className="attendance-search-clear" onClick={() => setAttendanceSearch('')}>
+                ✕
+              </button>
+            )}
+          </div>
+        )}
+
+        {filteredAttendance.length === 0 ? (
+          <div className="attendance-empty">Tidak ada peserta yang cocok dengan pencarian.</div>
+        ) : (
+          <div className={`attendance-list${filteredAttendance.length > 5 ? ' scrollable' : ''}`}>
+            {filteredAttendance.map(p => (
+              <div className={`attendance-item${p.status === 'tidak_hadir' ? ' absent' : ''}`} key={p.id}>
+                <div className="attendance-avatar">{initials(p.employee.full_name)}</div>
+                <div className="attendance-info">
+                  <div className="attendance-name">{p.employee.full_name}</div>
+                  <div className="attendance-subtext">
+                    {[p.employee.position?.position, p.employee.work_unit?.work_unit, `NIP: ${p.employee.nip}`].filter(Boolean).join(' • ')}
+                  </div>
+                </div>
+                <div className="attendance-time">
+                  <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                  <span>{p.check_in_time ? formatTime(p.check_in_time) : '-'}</span>
+                </div>
+                <div className="attendance-dropdown-wrapper" onClick={e => e.stopPropagation()}>
+                  <button
+                    className={`attendance-dropdown-btn ${p.status === 'hadir' ? 'hadir' : 'tidak-hadir'}`}
+                    onClick={() => setOpenDropdown(openDropdown === p.id ? null : p.id)}
+                  >
+                    {p.status === 'hadir' ? (
+                      <>
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                        Hadir
+                      </>
+                    ) : (
+                      <>
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                        Tidak Hadir
+                      </>
+                    )}
+                    <svg className="dropdown-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                  </button>
+                  {openDropdown === p.id && (
+                    <div className="attendance-dropdown-menu">
+                      <button
+                        className={`dropdown-option hadir${p.status === 'hadir' ? ' active' : ''}`}
+                        onClick={() => handleChangeStatus(p, 'hadir')}
+                      >
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                        Hadir
+                      </button>
+                      <button
+                        className={`dropdown-option tidak-hadir${p.status === 'tidak_hadir' ? ' active' : ''}`}
+                        onClick={() => handleChangeStatus(p, 'tidak_hadir')}
+                      >
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                        Tidak Hadir
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="attendance-time">
-                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
-                <span>{p.check_in_time ? formatTime(p.check_in_time) : '-'}</span>
-              </div>
-              <div className="attendance-dropdown-wrapper" onClick={e => e.stopPropagation()}>
-                <button
-                  className={`attendance-dropdown-btn ${p.status === 'hadir' ? 'hadir' : 'tidak-hadir'}`}
-                  onClick={() => setOpenDropdown(openDropdown === p.id ? null : p.id)}
-                >
-                  {p.status === 'hadir' ? (
-                    <>
-                      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-                      Hadir
-                    </>
-                  ) : (
-                    <>
-                      <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
-                      Tidak Hadir
-                    </>
-                  )}
-                  <svg className="dropdown-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                </button>
-                {openDropdown === p.id && (
-                  <div className="attendance-dropdown-menu">
-                    <button
-                      className={`dropdown-option hadir${p.status === 'hadir' ? ' active' : ''}`}
-                      onClick={() => handleChangeStatus(p, 'hadir')}
-                    >
-                      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-                      Hadir
-                    </button>
-                    <button
-                      className={`dropdown-option tidak-hadir${p.status === 'tidak_hadir' ? ' active' : ''}`}
-                      onClick={() => handleChangeStatus(p, 'tidak_hadir')}
-                    >
-                      <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
-                      Tidak Hadir
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
 

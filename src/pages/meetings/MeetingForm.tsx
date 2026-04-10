@@ -46,6 +46,7 @@ export default function MeetingForm() {
   const [startTimeOnly, setStartTimeOnly] = useState('');
   const [endTimeOnly, setEndTimeOnly] = useState('');
   const [participants, setParticipants] = useState<Employee[]>([]);
+  const [participantSearch, setParticipantSearch] = useState('');
 
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -127,6 +128,18 @@ export default function MeetingForm() {
     setShowEmpModal(true);
     loadDivisionData();
   }, [participants, loadDivisionData]);
+
+  /* filtered participants based on search */
+  const filteredParticipants = useMemo(() => {
+    const q = participantSearch.toLowerCase().trim();
+    if (!q) return participants;
+    return participants.filter(p =>
+      p.full_name.toLowerCase().includes(q) ||
+      (p.position?.position || '').toLowerCase().includes(q) ||
+      (p.work_unit?.work_unit || '').toLowerCase().includes(q) ||
+      (p.nip || '').toLowerCase().includes(q)
+    );
+  }, [participants, participantSearch]);
 
   /* filtered divisions based on search */
   const filteredDivisions = useMemo(() => {
@@ -320,11 +333,34 @@ export default function MeetingForm() {
 
           {errors.participants && <div className="form-field-error" style={{ marginBottom: '0.75rem' }}>{errors.participants[0]}</div>}
 
+          {/* Search peserta */}
+          {participants.length > 0 && (
+            <div className="participant-search-wrapper">
+              <svg className="participant-search-icon" viewBox="0 0 24 24" width="18" height="18">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#94a3b8"/>
+              </svg>
+              <input
+                type="text"
+                className="participant-search-input"
+                placeholder="Cari peserta berdasarkan nama, jabatan, atau NIP..."
+                value={participantSearch}
+                onChange={e => setParticipantSearch(e.target.value)}
+              />
+              {participantSearch && (
+                <button type="button" className="participant-search-clear" onClick={() => setParticipantSearch('')}>
+                  ✕
+                </button>
+              )}
+            </div>
+          )}
+
           {participants.length === 0 ? (
             <div className="participants-empty">Belum ada peserta ditambahkan.</div>
+          ) : filteredParticipants.length === 0 ? (
+            <div className="participants-empty">Tidak ada peserta yang cocok dengan pencarian.</div>
           ) : (
-            <div className="participant-list">
-              {participants.map(p => (
+            <div className={`participant-list${filteredParticipants.length > 5 ? ' scrollable' : ''}`}>
+              {filteredParticipants.map(p => (
                 <div className="participant-item" key={p.id}>
                   <div className="participant-avatar" style={{ background: avatarColor(p.full_name) }}>{initials(p.full_name)}</div>
                   <div className="participant-info">

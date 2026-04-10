@@ -148,6 +148,95 @@
   gap: 0.5rem;
 }
 
+.attendance-list.scrollable {
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+/* Custom scrollbar for attendance list */
+.attendance-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.attendance-list::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.attendance-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.attendance-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ─── Attendance Search ─── */
+.attendance-search-wrapper {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.attendance-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.attendance-search-input {
+  width: 100%;
+  padding: 0.6rem 2.5rem 0.6rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #0f172a;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.attendance-search-input:focus {
+  border-color: #22c55e;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.1);
+}
+
+.attendance-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.attendance-search-clear {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.attendance-search-clear:hover {
+  color: #475569;
+  background: #f1f5f9;
+}
+
+.attendance-empty {
+  text-align: center;
+  padding: 1.5rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
 .attendance-item {
   display: flex;
   align-items: center;
