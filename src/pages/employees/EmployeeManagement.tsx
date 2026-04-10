@@ -40,7 +40,6 @@ export default function EmployeeManagement() {
     nip: "",
     employee_type_id: undefined,
     work_unit_id: undefined,
-    position_id: 1, // Defaulting position_id to 1 just in case, typical for simpler integrations since UI doesn't show it
   });
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
   const [saving, setSaving] = useState(false);
@@ -100,13 +99,11 @@ export default function EmployeeManagement() {
   /* Modals */
   const openAddModal = () => {
     setSelectedEmp(null);
-    // Setting defaults
     setFormData({
       full_name: "",
       nip: "",
       employee_type_id: employeeTypes[0]?.id,
       work_unit_id: null,
-      position_id: 1,
     });
     setFormErrors({});
     setShowFormModal(true);
@@ -119,7 +116,6 @@ export default function EmployeeManagement() {
       nip: emp.nip,
       employee_type_id: emp.employee_type_id,
       work_unit_id: emp.work_unit_id || null,
-      position_id: emp.position_id || 1,
     });
     setFormErrors({});
     setShowFormModal(true);
@@ -134,27 +130,39 @@ export default function EmployeeManagement() {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
+    setError(null);
     setSaving(true);
 
-    // Convert empty string or undefined work unit to null
-    const payload = { ...formData };
-    if (!payload.work_unit_id) payload.work_unit_id = null;
+    // Build clean payload — only send fields the backend expects
+    const payload: Record<string, unknown> = {
+      full_name: formData.full_name,
+      nip: formData.nip,
+      employee_type_id: formData.employee_type_id,
+      work_unit_id: formData.work_unit_id || null,
+    };
 
     try {
       if (selectedEmp) {
-        await employeeService.update(selectedEmp.id, payload);
+        await employeeService.update(selectedEmp.id, payload as Partial<Employee>);
       } else {
-        await employeeService.store(payload);
+        await employeeService.store(payload as Partial<Employee>);
       }
       setShowFormModal(false);
       fetchEmployees();
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const axErr = err as {
-          response?: { data?: { errors?: Record<string, string[]> } };
+          response?: { data?: { errors?: Record<string, string[]>; message?: string; error?: string }; status?: number };
         };
-        if (axErr.response?.data?.errors)
+        if (axErr.response?.data?.errors) {
           setFormErrors(axErr.response.data.errors);
+        } else {
+          // Show server error message
+          const msg = axErr.response?.data?.message || axErr.response?.data?.error || `Gagal menyimpan data (status: ${axErr.response?.status})`;
+          setError(msg);
+        }
+      } else {
+        setError("Gagal menghubungi server. Pastikan backend berjalan.");
       }
     } finally {
       setSaving(false);
