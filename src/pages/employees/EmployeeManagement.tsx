@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   employeeService,
   employeeTypeService,
@@ -44,6 +44,12 @@ export default function EmployeeManagement() {
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
+
+  /* Signature */
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
+  const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
+  const [removeSignature, setRemoveSignature] = useState(false);
+  const signatureInputRef = useRef<HTMLInputElement>(null);
   const [exporting, setExporting] = useState(false);
 
   const fetchEmployees = useCallback(async () => {
@@ -106,6 +112,9 @@ export default function EmployeeManagement() {
       work_unit_id: null,
     });
     setFormErrors({});
+    setSignatureFile(null);
+    setSignaturePreview(null);
+    setRemoveSignature(false);
     setShowFormModal(true);
   };
 
@@ -118,6 +127,9 @@ export default function EmployeeManagement() {
       work_unit_id: emp.work_unit_id || null,
     });
     setFormErrors({});
+    setSignatureFile(null);
+    setSignaturePreview(emp.signature_url || null);
+    setRemoveSignature(false);
     setShowFormModal(true);
   };
 
@@ -127,25 +139,48 @@ export default function EmployeeManagement() {
   };
 
   /* Actions */
+  const handleSignatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSignatureFile(file);
+    setRemoveSignature(false);
+    const reader = new FileReader();
+    reader.onloadend = () => setSignaturePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveSignature = () => {
+    setSignatureFile(null);
+    setSignaturePreview(null);
+    setRemoveSignature(true);
+    if (signatureInputRef.current) signatureInputRef.current.value = '';
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
     setError(null);
     setSaving(true);
 
-    // Build clean payload — only send fields the backend expects
-    const payload: Record<string, unknown> = {
-      full_name: formData.full_name,
-      nip: formData.nip,
-      employee_type_id: formData.employee_type_id,
-      work_unit_id: formData.work_unit_id || null,
-    };
+    // Build FormData to support file uploads
+    const fd = new FormData();
+    fd.append('full_name', formData.full_name || '');
+    fd.append('nip', formData.nip || '');
+    if (formData.employee_type_id) fd.append('employee_type_id', String(formData.employee_type_id));
+    if (formData.work_unit_id) fd.append('work_unit_id', String(formData.work_unit_id));
+
+    // Signature
+    if (signatureFile) {
+      fd.append('signature', signatureFile);
+    } else if (removeSignature) {
+      fd.append('remove_signature', '1');
+    }
 
     try {
       if (selectedEmp) {
-        await employeeService.update(selectedEmp.id, payload as Partial<Employee>);
+        await employeeService.update(selectedEmp.id, fd);
       } else {
-        await employeeService.store(payload as Partial<Employee>);
+        await employeeService.store(fd);
       }
       setShowFormModal(false);
       fetchEmployees();
@@ -376,7 +411,28 @@ export default function EmployeeManagement() {
                         {emp.work_unit?.work_unit || "-"}
                       </div>
                     </td>
-                    <td>null</td>
+                    <td>
+                      <div className="emp-table-signature-cell">
+                        {emp.signature_url ? (
+                          <img
+                            src={emp.signature_url}
+                            alt="TTD"
+                            className="emp-table-signature"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              target.style.display = 'none';
+                              if (target.nextElementSibling) (target.nextElementSibling as HTMLElement).style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <span
+                          className="emp-table-signature-fallback"
+                          style={{ display: emp.signature_url ? 'none' : 'flex' }}
+                        >
+                          -
+                        </span>
+                      </div>
+                    </td>
                     <td>
                       <div className="emp-action-btn-group">
                         <button
@@ -568,6 +624,53 @@ export default function EmployeeManagement() {
                   {formErrors.work_unit_id && (
                     <div className="emp-modal-field-error">
                       {formErrors.work_unit_id[0]}
+                    </div>
+                  )}
+                </div>
+
+                {/* Tanda Tangan */}
+                <div className="emp-modal-field">
+                  <label>Tanda Tangan</label>
+                  <div className="emp-signature-area">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/jpg"
+                      ref={signatureInputRef}
+                      onChange={handleSignatureChange}
+                      style={{ display: 'none' }}
+                      id="signature-upload"
+                    />
+                    <button
+                      type="button"
+                      className="emp-signature-upload-btn"
+                      onClick={() => signatureInputRef.current?.click()}
+                      title="Unggah Tanda Tangan"
+                    >
+                      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" />
+                      </svg>
+                    </button>
+                    <div className="emp-signature-preview">
+                      {signaturePreview ? (
+                        <>
+                          <img src={signaturePreview} alt="Tanda Tangan" />
+                          <button
+                            type="button"
+                            className="emp-signature-remove-btn"
+                            onClick={handleRemoveSignature}
+                            title="Hapus Tanda Tangan"
+                          >
+                            ✕
+                          </button>
+                        </>
+                      ) : (
+                        <span className="emp-signature-placeholder">Belum ada tanda tangan</span>
+                      )}
+                    </div>
+                  </div>
+                  {formErrors.signature && (
+                    <div className="emp-modal-field-error">
+                      {formErrors.signature[0]}
                     </div>
                   )}
                 </div>

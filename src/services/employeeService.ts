@@ -19,16 +19,22 @@ export const employeeService = {
     return res.data;
   },
 
-  async store(data: Partial<Employee>): Promise<{ data: Employee }> {
-    const res = await api.post("/employee", data);
+  async store(data: FormData): Promise<{ data: Employee }> {
+    const res = await api.post("/employee", data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data;
   },
 
   async update(
     id: number,
-    data: Partial<Employee>,
+    data: FormData,
   ): Promise<{ data: Employee }> {
-    const res = await api.patch(`/employee/${id}`, data);
+    // Use POST with _method=PATCH for multipart file uploads
+    data.append('_method', 'PATCH');
+    const res = await api.post(`/employee/${id}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data;
   },
 

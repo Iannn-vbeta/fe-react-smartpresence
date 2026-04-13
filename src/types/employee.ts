@@ -23,6 +23,8 @@ export interface Employee {
   email?: string;
   phone?: string;
   is_active?: boolean;
+  signature_path?: string | null;
+  signature_url?: string | null;
   work_unit?: WorkUnit;
   position?: Position;
   employee_type?: EmployeeType;
