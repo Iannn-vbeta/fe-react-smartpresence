@@ -34,20 +34,20 @@ export default function MeetingDetail() {
   const [scanning, setScanning] = useState(false);
   const scanRef = useRef<HTMLInputElement>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (isInitial = false) => {
     if (!id) return;
-    setLoading(true);
+    if (isInitial) setLoading(true);
     try {
       const res = await meetingService.show(Number(id));
       setData(res.data);
     } catch {
       setError('Gagal memuat detail rapat.');
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
   }, [id]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(true); }, [fetchData]);
 
   /* close dropdown on outside click */
   useEffect(() => {
@@ -56,10 +56,16 @@ export default function MeetingDetail() {
     return () => document.removeEventListener('click', handler);
   }, []);
 
+  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   /* scan barcode */
   const handleScan = async () => {
     if (!id || !scanNip.trim()) return;
     setScanning(true);
+    
+    // Hapus timer reset sebelumnya (misal karyawan nge-scan secara sangat cepat / beruntun)
+    if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+
     try {
       const res = await meetingService.scanBarcode(Number(id), scanNip.trim());
       const employeeName = res.data?.employee?.full_name || res.data?.employee?.name || 'Karyawan';
@@ -78,6 +84,11 @@ export default function MeetingDetail() {
       setScanning(false);
       setScanNip(''); // Selalu bersihkan input setelah proses (baik sukses maupun gagal)
       setTimeout(() => scanRef.current?.focus(), 100);
+
+      // Reset otomatis ke mode "Menunggu Scan" setelah 1.5 detik
+      scanTimerRef.current = setTimeout(() => {
+        setScanState('idle');
+      }, 1500);
     }
   };
 
