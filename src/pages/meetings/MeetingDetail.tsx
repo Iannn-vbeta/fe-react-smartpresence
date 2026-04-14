@@ -3,6 +3,9 @@ import { useParams } from 'react-router-dom';
 import { meetingService } from '../../services/meetingService';
 import type { MeetingDetailData, ParticipantWithAttendance } from '../../types/meeting';
 import './MeetingDetail.css';
+import imgWaiting from '../../assets/icons/Jadwal kehadiran/presensi qr.webp';
+import imgSuccess from '../../assets/icons/Jadwal kehadiran/berhasil qr.webp';
+import imgError from '../../assets/icons/Jadwal kehadiran/gagal qr.webp';
 
 function initials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -25,7 +28,9 @@ export default function MeetingDetail() {
   /* scan modal */
   const [showScan, setShowScan] = useState(false);
   const [scanNip, setScanNip] = useState('');
-  const [scanResult, setScanResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [scanState, setScanState] = useState<'idle' | 'success' | 'error'>('idle');
+  const [scanEmployeeName, setScanEmployeeName] = useState('');
+  const [scanErrorMessage, setScanErrorMessage] = useState('');
   const [scanning, setScanning] = useState(false);
   const scanRef = useRef<HTMLInputElement>(null);
 
@@ -55,18 +60,20 @@ export default function MeetingDetail() {
   const handleScan = async () => {
     if (!id || !scanNip.trim()) return;
     setScanning(true);
-    setScanResult(null);
     try {
       const res = await meetingService.scanBarcode(Number(id), scanNip.trim());
-      setScanResult({ ok: true, msg: res.message || 'Absensi berhasil!' });
+      const employeeName = res.data?.employee?.full_name || res.data?.employee?.name || 'Karyawan';
+      setScanEmployeeName(employeeName);
+      setScanState('success');
       fetchData();
     } catch (err: unknown) {
-      let msg = 'Gagal memproses scan.';
+      let msg = 'Barcode tidak valid';
       if (err && typeof err === 'object' && 'response' in err) {
         const ae = err as { response?: { data?: { message?: string } } };
         msg = ae.response?.data?.message || msg;
       }
-      setScanResult({ ok: false, msg });
+      setScanErrorMessage(msg);
+      setScanState('error');
     } finally {
       setScanning(false);
       setScanNip(''); // Selalu bersihkan input setelah proses (baik sukses maupun gagal)
@@ -176,7 +183,11 @@ export default function MeetingDetail() {
             <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             Data Peserta Rapat ({attendance_summary.total} peserta)
           </h3>
-          <button className="scan-barcode-btn" onClick={() => { setShowScan(true); setScanResult(null); setScanNip(''); }}>
+          <button className="scan-barcode-btn" onClick={() => { 
+            setShowScan(true); 
+            setScanState('idle'); 
+            setScanNip(''); 
+          }}>
             <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h2V6h-2v3zm6 0h2V6h-2v3zm-3 0h2V6h-2v3zm-3 4h2v-3h-2v3zm6 0h2v-3h-2v3zm-3 0h2v-3h-2v3z"/></svg>
             Scan Barcode
           </button>
@@ -269,12 +280,49 @@ export default function MeetingDetail() {
       {showScan && (
         <div className="modal-overlay" onClick={() => setShowScan(false)}>
           <div className="modal-boxscan" onClick={e => e.stopPropagation()}>
-            <div className="scan-animation-container">
-              <div className="scan-spinner"></div>
-              <div className="scan-text">
-                presensi sedang<br />berlangsung
-              </div>
+            <button className="modal-close-icon" onClick={() => setShowScan(false)}>
+              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+            <h2 className="modal-title">Scan Barcode Karyawan</h2>
+            <p className="modal-subtitle">Silakan scan barcode pada kartu karyawan Anda menggunakan scanner</p>
+
+            <div className="scan-body">
+              {scanState === 'idle' && (
+                <div className="scan-state-content">
+                  <img src={imgWaiting} alt="Menunggu scan" className="scan-status-img idle-img" />
+                  <h3 className="scan-status-title">Menunggu Scan...</h3>
+                  <p className="scan-status-desc">Arahkan kartu karyawan Anda ke scanner barcode yang tersedia</p>
+                  <div className="scan-status-indicator blue">
+                    <span className="dot"></span> Scanner aktif...
+                  </div>
+                </div>
+              )}
+
+              {scanState === 'success' && (
+                <div className="scan-state-content">
+                  <img src={imgSuccess} alt="Scan Berhasil" className="scan-status-img" />
+                  <p className="scan-status-label green">Karyawan atas nama</p>
+                  <h3 className="scan-employee-name blue">"{scanEmployeeName}"</h3>
+                  <p className="scan-status-result green">Telah hadir</p>
+                  <div className="scan-status-indicator blue">
+                    <span className="dot"></span> Bersiap untuk scan berikutnya...
+                  </div>
+                </div>
+              )}
+
+              {scanState === 'error' && (
+                <div className="scan-state-content">
+                  <img src={imgError} alt="Scan Gagal" className="scan-status-img" />
+                  <h3 className="scan-status-result red">Scan Gagal</h3>
+                  <p className="scan-error-msg">{scanErrorMessage}</p>
+                  <div className="scan-status-indicator blue">
+                    <span className="dot"></span> Bersiap untuk scan berikutnya...
+                  </div>
+                </div>
+              )}
             </div>
+
+            <button className="scan-close-btn" onClick={() => setShowScan(false)}>Tutup</button>
             
             {/* Hidden input to keep functionality working for barcode scanner */}
             <input
@@ -287,17 +335,6 @@ export default function MeetingDetail() {
               autoFocus
               disabled={scanning}
             />
-            
-            {/* Show success/error briefly below the circle if needed */}
-            {scanResult && (
-              <div className={`scan-feedback ${scanResult.ok ? 'success' : 'error'}`}>
-                {scanResult.msg}
-              </div>
-            )}
-            
-            <p className="scan-help-text">
-              Silakan scan barcode
-            </p>
           </div>
         </div>
       )}
