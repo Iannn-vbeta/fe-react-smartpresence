@@ -85,10 +85,10 @@ export default function MeetingDetail() {
       setScanNip(''); // Selalu bersihkan input setelah proses (baik sukses maupun gagal)
       setTimeout(() => scanRef.current?.focus(), 100);
 
-      // Reset otomatis ke mode "Menunggu Scan" setelah 1.5 detik
+      // Reset otomatis ke mode "Menunggu Scan" setelah 2.5 detik
       scanTimerRef.current = setTimeout(() => {
         setScanState('idle');
-      }, 1500);
+      }, 2500);
     }
   };
 
