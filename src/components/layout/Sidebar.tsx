@@ -4,13 +4,30 @@ import { useAuthStore } from '../../store/authStore';
 import { authService } from '../../services/authService';
 import './Sidebar.css';
 
-const menuItems = [
+/* ─── Role constants ─── */
+const ROLE_SUPER_ADMIN = 1;
+const ROLE_ADMIN = 2;
+
+/*
+ * Each menu item can have a `roles` array.
+ * – If `roles` is undefined, the item is visible to ALL authenticated users.
+ * – If `roles` is set, only users whose role_id is in the array can see it.
+ */
+interface MenuItem {
+  label: string;
+  path: string;
+  icon: JSX.Element;
+  roles?: number[]; // undefined = visible to all
+}
+
+const menuItems: MenuItem[] = [
   {
     label: 'Beranda',
     path: '/dashboard',
     icon: (
       <svg viewBox="0 0 24 24"><path d="M3 13h1v7c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-7h1a1 1 0 0 0 .7-1.7l-9-9a1 1 0 0 0-1.4 0l-9 9A1 1 0 0 0 3 13zm7 7v-5h4v5h-4zm2-15.6 7 7V20h-3v-5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v5H5v-8.6l7-7z"/></svg>
     ),
+    // visible to all roles
   },
   {
     label: 'Jadwal Rapat',
@@ -18,6 +35,7 @@ const menuItems = [
     icon: (
       <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
     ),
+    // visible to all roles
   },
   {
     label: 'Karyawan',
@@ -25,6 +43,7 @@ const menuItems = [
     icon: (
       <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
     ),
+    roles: [ROLE_SUPER_ADMIN],
   },
   {
     label: 'Ruang Rapat',
@@ -32,6 +51,7 @@ const menuItems = [
     icon: (
       <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
     ),
+    roles: [ROLE_SUPER_ADMIN],
   },
   {
     label: 'Pengguna',
@@ -39,6 +59,7 @@ const menuItems = [
     icon: (
       <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     ),
+    roles: [ROLE_SUPER_ADMIN],
   },
   {
     label: 'Laporan',
@@ -46,6 +67,7 @@ const menuItems = [
     icon: (
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
     ),
+    roles: [ROLE_SUPER_ADMIN],
   },
   {
     label: 'Unit Kerja',
@@ -53,6 +75,7 @@ const menuItems = [
     icon: (
       <svg viewBox="0 0 24 24"><path d="M3 3h18v5H3V3zm0 7h5v11H3V10zm7 0h5v11h-5V10zm7 0h5v11h-5V10z"/></svg>
     ),
+    roles: [ROLE_SUPER_ADMIN],
   },
 ];
 
@@ -62,9 +85,17 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
+
+  const userRoleId = user?.role_id;
+
+  // Filter menu items based on user's role
+  const visibleMenuItems = menuItems.filter((item) => {
+    if (!item.roles) return true; // no restriction → visible to all
+    return userRoleId !== undefined && item.roles.includes(userRoleId);
+  });
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -113,7 +144,7 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
 
         {/* Nav links */}
         <nav className="sidebar-nav">
-          {menuItems.map((item) => (
+          {visibleMenuItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
