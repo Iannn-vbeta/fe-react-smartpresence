@@ -355,6 +355,28 @@
   background: #fecaca;
 }
 
+/* Badge status (read-only) untuk role Admin */
+.status-badge-simple {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge-simple.hadir {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge-simple.tidak-hadir {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+
 /* ─── Dropdown menu ─── */
 .attendance-dropdown-menu {
   position: absolute;
