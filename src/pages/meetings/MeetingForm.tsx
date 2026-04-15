@@ -422,13 +422,7 @@ export default function MeetingForm() {
               <input type="date" value={meetingDate} onChange={e => setMeetingDate(e.target.value)} required />
               {errors.start_time && <div className="form-field-error">{errors.start_time[0]}</div>}
             </div>
-            {isEdit && (
-              <div className="form-field">
-                <label>Pihak Penyelenggara <span className="required">*</span></label>
-                <input type="text" value={organizer} readOnly className="input-readonly" placeholder="Penyelenggara" />
-                {errors.organizer && <div className="form-field-error">{errors.organizer[0]}</div>}
-              </div>
-            )}
+
           </div>
 
           <div className="form-row">
