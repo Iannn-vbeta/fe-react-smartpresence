@@ -77,6 +77,7 @@
 .form-field input:read-only {
   background: #f1f5f9;
   color: #64748b;
+  cursor: not-allowed;
 }
 
 .form-field-error {

@@ -2,9 +2,23 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { meetingService, meetingRoomService } from '../../services/meetingService';
 import { employeeService, workUnitService } from '../../services/employeeService';
+import { useAuthStore } from '../../store/authStore';
 import type { MeetingRoom, MeetingFormData } from '../../types/meeting';
 import type { Employee, WorkUnit } from '../../types/employee';
 import './MeetingForm.css';
+
+/* Map role string from backend to display-friendly label */
+function getRoleDisplayName(role?: string): string {
+  if (!role) return '';
+  const map: Record<string, string> = {
+    'super_admin': 'Super Admin',
+    'admin': 'Admin',
+    'sekretaris': 'Sekretaris',
+    'manajemen': 'Manajemen',
+    'karyawan': 'Karyawan',
+  };
+  return map[role] || role;
+}
 
 /* helpers */
 function initials(name: string) {
@@ -34,13 +48,18 @@ export default function MeetingForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   /* dropdown data */
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
 
   /* form */
   const [title, setTitle] = useState('');
-  const [organizer, setOrganizer] = useState('');
+  const [organizer, setOrganizer] = useState(() => {
+    // Auto-fill with logged-in user's username for new meetings
+    if (!id) return user?.username || '';
+    return '';
+  });
   const [roomId, setRoomId] = useState<number | ''>('');
   const [meetingDate, setMeetingDate] = useState('');
   const [startTimeOnly, setStartTimeOnly] = useState('');
@@ -289,7 +308,7 @@ export default function MeetingForm() {
             </div>
             <div className="form-field">
               <label>Pihak Penyelenggara <span className="required">*</span></label>
-              <input type="text" value={organizer} onChange={e => setOrganizer(e.target.value)} placeholder="Pilih penyelenggara" />
+              <input type="text" value={organizer} readOnly className="input-readonly" placeholder="Penyelenggara" />
               {errors.organizer && <div className="form-field-error">{errors.organizer[0]}</div>}
             </div>
           </div>
