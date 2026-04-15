@@ -27,10 +27,11 @@ export default function MeetingManagement() {
 
   /* filters */
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
+  const [organizer, setOrganizer] = useState('');
   const [roomId, setRoomId] = useState('');
   const [date, setDate] = useState('');
   const [page, setPage] = useState(1);
+  const [allMeetings, setAllMeetings] = useState<Meeting[]>([]);
 
   /* delete modal */
   const [deleteTarget, setDeleteTarget] = useState<Meeting | null>(null);
@@ -38,7 +39,7 @@ export default function MeetingManagement() {
 
   /* fetch rooms once */
   useEffect(() => {
-    meetingRoomService.list().then(setRooms).catch(() => {});
+    meetingRoomService.list().then(setRooms).catch(() => { });
   }, []);
 
   /* fetch meetings */
@@ -48,19 +49,34 @@ export default function MeetingManagement() {
     try {
       const params: Record<string, string | number> = { page, per_page: 10 };
       if (search) params.search = search;
-      if (status) params.status = status;
       if (roomId) params.room_id = roomId;
       if (date) params.date = date;
       const res = await meetingService.list(params);
       setMeetings(res.data);
+      // Simpan semua data (tanpa filter organizer) untuk membentuk dropdown penyelenggara
+      if (!organizer) setAllMeetings(prev => {
+        const merged = [...prev, ...res.data.data];
+        const seen = new Set<number>();
+        return merged.filter(m => { if (seen.has(m.id)) return false; seen.add(m.id); return true; });
+      });
     } catch {
       setError('Gagal memuat data rapat.');
     } finally {
       setLoading(false);
     }
-  }, [search, status, roomId, date, page]);
+  }, [search, roomId, date, page, organizer]);
 
   useEffect(() => { fetchMeetings(); }, [fetchMeetings]);
+
+  /* Daftar unik penyelenggara */
+  const organizerOptions = Array.from(
+    new Set(allMeetings.map(m => m.organizer).filter((o): o is string => Boolean(o)))
+  ).sort();
+
+  /* Filter tampilan berdasarkan penyelenggara (client-side) */
+  const displayedData = organizer
+    ? (meetings?.data || []).filter(m => m.organizer === organizer)
+    : (meetings?.data || []);
 
   /* debounced search */
   const [searchInput, setSearchInput] = useState('');
@@ -96,7 +112,7 @@ export default function MeetingManagement() {
           <p>Kelola dan monitor semua jadwal rapat</p>
         </div>
         <Link to="/meetings/create" className="meeting-add-btn">
-          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" /></svg>
           Tambah Jadwal Rapat
         </Link>
       </div>
@@ -106,7 +122,7 @@ export default function MeetingManagement() {
         <div className="filter-group">
           <label>Cari Jadwal Rapat</label>
           <div className="filter-input-wrapper">
-            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" /></svg>
             <input
               type="text"
               placeholder="Cari jadwal rapat..."
@@ -117,12 +133,12 @@ export default function MeetingManagement() {
         </div>
 
         <div className="filter-group">
-          <label>Status Rapat</label>
-          <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
-            <option value="">Semua Status</option>
-            <option value="menunggu">Menunggu</option>
-            <option value="berlangsung">Berlangsung</option>
-            <option value="selesai">Selesai</option>
+          <label>Penyelenggara</label>
+          <select value={organizer} onChange={(e) => { setOrganizer(e.target.value); setPage(1); }}>
+            <option value="">Semua Penyelenggara</option>
+            {organizerOptions.map(o => (
+              <option key={o} value={o}>{o}</option>
+            ))}
           </select>
         </div>
 
@@ -147,7 +163,7 @@ export default function MeetingManagement() {
       <div className="meeting-table-wrapper">
         {loading ? (
           <div className="meeting-loading">Memuat data rapat...</div>
-        ) : !meetings || meetings.data.length === 0 ? (
+        ) : displayedData.length === 0 ? (
           <div className="meeting-empty">Tidak ada data rapat.</div>
         ) : (
           <>
@@ -165,20 +181,20 @@ export default function MeetingManagement() {
                 </tr>
               </thead>
               <tbody>
-                {meetings.data.map((m) => (
+                {displayedData.map((m) => (
                   <tr key={m.id}>
                     <td style={{ fontWeight: 600, maxWidth: 180 }}>{m.title}</td>
                     <td>{formatDate(m.start_time)}</td>
                     <td>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="#94a3b8"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="#94a3b8"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" /></svg>
                         {formatTime(m.start_time)} - {formatTime(m.end_time)}
                       </span>
                     </td>
                     <td>{m.room?.name || '-'}</td>
                     <td>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="#94a3b8"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="#94a3b8"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
                         {m.organizer || '-'}
                       </span>
                     </td>
@@ -187,13 +203,13 @@ export default function MeetingManagement() {
                     <td>
                       <div className="action-btn-group">
                         <button className="action-btn view" title="Lihat Detail" onClick={() => navigate(`/meetings/${m.id}`)}>
-                          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" /></svg>
                         </button>
                         <button className="action-btn edit" title="Edit" onClick={() => navigate(`/meetings/${m.id}/edit`)}>
-                          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" /></svg>
                         </button>
                         <button className="action-btn del" title="Hapus" onClick={() => setDeleteTarget(m)}>
-                          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" /></svg>
                         </button>
                       </div>
                     </td>
@@ -205,7 +221,7 @@ export default function MeetingManagement() {
             {/* Pagination */}
             <div className="meeting-pagination">
               <span className="meeting-pagination-info">
-                Menampilkan {meetings.data.length} dari {meetings.total} rapat
+                Menampilkan {displayedData.length} dari {meetings?.total ?? 0} rapat
               </span>
               <div className="meeting-pagination-btns">
                 <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}>‹</button>

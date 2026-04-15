@@ -28,7 +28,7 @@ function toLocalDateValue(iso: string) {
   if (!iso) return '';
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 function toLocalTimeValue(iso: string) {
   if (!iso) return '';
@@ -37,7 +37,7 @@ function toLocalTimeValue(iso: string) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-const AVATAR_COLORS = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#0ea5e9'];
+const AVATAR_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#0ea5e9'];
 function avatarColor(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -45,7 +45,7 @@ function avatarColor(name: string) {
 }
 
 /* ─── Scrollable Time Picker ─── */
-const HOURS_LIST   = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const HOURS_LIST = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
 const MINUTES_LIST = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 const ITEM_H = 40;
 
@@ -54,7 +54,7 @@ function ScrollCol({ items, selected, onSelect }: {
   selected: string;
   onSelect: (v: string) => void;
 }) {
-  const ref  = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>();
 
   const scrollToIdx = useCallback((idx: number, smooth = false) => {
@@ -65,7 +65,7 @@ function ScrollCol({ items, selected, onSelect }: {
   useEffect(() => {
     const idx = items.indexOf(selected);
     if (idx >= 0) scrollToIdx(idx, false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleScroll = () => {
@@ -128,7 +128,7 @@ function TimePickerInput({ value, onChange }: { value: string; onChange: (v: str
           <div className="tpd-cols-wrapper">
             <div className="tpd-highlight" />
             <div className="tpd-cols">
-              <ScrollCol items={HOURS_LIST}   selected={hh} onSelect={setHH} />
+              <ScrollCol items={HOURS_LIST} selected={hh} onSelect={setHH} />
               <div className="tpd-sep">:</div>
               <ScrollCol items={MINUTES_LIST} selected={mm} onSelect={setMM} />
             </div>
@@ -173,8 +173,10 @@ export default function MeetingForm() {
   const [showEmpModal, setShowEmpModal] = useState(false);
   const [divisions, setDivisions] = useState<WorkUnit[]>([]);
   const [divisionEmployees, setDivisionEmployees] = useState<Record<number, Employee[]>>({});
+  const [unassignedEmployees, setUnassignedEmployees] = useState<Employee[]>([]); // karyawan tanpa unit kerja
   const [allEmployeesMap, setAllEmployeesMap] = useState<Record<number, Employee>>({});
   const [expandedDivisions, setExpandedDivisions] = useState<Set<number>>(new Set());
+  const [expandedUnassigned, setExpandedUnassigned] = useState(false);
   const [pendingSelection, setPendingSelection] = useState<Set<number>>(new Set());
   const [divisionSearch, setDivisionSearch] = useState('');
   const [divisionDataLoaded, setDivisionDataLoaded] = useState(false);
@@ -182,7 +184,7 @@ export default function MeetingForm() {
 
   /* load rooms */
   useEffect(() => {
-    meetingRoomService.list().then(setRooms).catch(() => {});
+    meetingRoomService.list().then(setRooms).catch(() => { });
   }, []);
 
   /* load meeting detail for edit */
@@ -227,6 +229,12 @@ export default function MeetingForm() {
         })
       );
 
+      // Fetch karyawan tanpa unit kerja
+      const unassignedRes = await employeeService.list({ no_work_unit: 1, per_page: 200 });
+      const unassigned = unassignedRes.data.data || [];
+      setUnassignedEmployees(unassigned);
+      unassigned.forEach(emp => { allMap[emp.id] = emp; });
+
       setDivisionEmployees(empMap);
       setAllEmployeesMap(allMap);
       setDivisionDataLoaded(true);
@@ -242,6 +250,7 @@ export default function MeetingForm() {
     setPendingSelection(new Set(participants.map(p => p.id)));
     setDivisionSearch('');
     setExpandedDivisions(new Set());
+    setExpandedUnassigned(false);
     setShowEmpModal(true);
     loadDivisionData();
   }, [participants, loadDivisionData]);
@@ -386,7 +395,7 @@ export default function MeetingForm() {
         {/* Info Card */}
         <div className="meeting-form-card">
           <h2 className="meeting-form-card-title">
-            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" /></svg>
             Informasi Rapat
           </h2>
 
@@ -441,11 +450,11 @@ export default function MeetingForm() {
         <div className="participants-card">
           <div className="participants-header">
             <h3>
-              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
               Data Peserta Rapat ({participants.length} peserta)
             </h3>
             <button type="button" className="add-participant-btn" onClick={openParticipantModal}>
-              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" /></svg>
               Tambah Peserta Rapat
             </button>
           </div>
@@ -456,7 +465,7 @@ export default function MeetingForm() {
           {participants.length > 0 && (
             <div className="participant-search-wrapper">
               <svg className="participant-search-icon" viewBox="0 0 24 24" width="18" height="18">
-                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#94a3b8"/>
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#94a3b8" />
               </svg>
               <input
                 type="text"
@@ -510,15 +519,15 @@ export default function MeetingForm() {
           <div className="division-modal-box" onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="division-modal-header">
-              <h3>Division & Participant Selection</h3>
+              <h3>Tambah Peserta Rapat</h3>
               <button type="button" className="division-modal-close" onClick={() => setShowEmpModal(false)}>
-                <svg viewBox="0 0 24 24" width="20" height="20"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor" /></svg>
               </button>
             </div>
 
             {/* Search */}
             <div className="division-search-wrapper">
-              <svg viewBox="0 0 24 24" width="18" height="18"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#94a3b8"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#94a3b8" /></svg>
               <input
                 type="text"
                 className="division-search-input"
@@ -529,86 +538,171 @@ export default function MeetingForm() {
               />
             </div>
 
-            {/* Division list */}
+            {/* Unit Kerja list */}
             <div className="division-list">
               {divisionLoading ? (
-                <div className="division-loading">Memuat data divisi...</div>
-              ) : filteredDivisions.length === 0 ? (
-                <div className="division-loading">Tidak ada divisi ditemukan.</div>
+                <div className="division-loading">Memuat data unit kerja...</div>
+              ) : filteredDivisions.length === 0 && unassignedEmployees.length === 0 ? (
+                <div className="division-loading">Tidak ada data karyawan ditemukan.</div>
               ) : (
-                filteredDivisions.map(div => {
-                  const emps = getFilteredEmployees(div.id);
-                  const totalMembers = (divisionEmployees[div.id] || []).length;
-                  const isExpanded = expandedDivisions.has(div.id);
-                  const allSelected = emps.length > 0 && emps.every(e => pendingSelection.has(e.id));
-                  const someSelected = emps.some(e => pendingSelection.has(e.id));
+                <>
+                  {/* Seksi per unit kerja */}
+                  {filteredDivisions.map(div => {
+                    const emps = getFilteredEmployees(div.id);
+                    const totalMembers = (divisionEmployees[div.id] || []).length;
+                    const isExpanded = expandedDivisions.has(div.id);
+                    const allSelected = emps.length > 0 && emps.every(e => pendingSelection.has(e.id));
+                    const someSelected = emps.some(e => pendingSelection.has(e.id));
 
-                  return (
-                    <div className="division-section" key={div.id}>
-                      {/* Division header */}
-                      <div className="division-header" onClick={() => toggleExpand(div.id)}>
-                        <div className="division-header-left">
-                          <div className="division-icon">
-                            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" fill="#1d4ed8"/></svg>
+                    return (
+                      <div className="division-section" key={div.id}>
+                        {/* Division header */}
+                        <div className="division-header" onClick={() => toggleExpand(div.id)}>
+                          <div className="division-header-left">
+                            <div className="division-icon">
+                              <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" fill="#1d4ed8" /></svg>
+                            </div>
+                            <div className="division-title-info">
+                              <span className="division-name">{div.work_unit}</span>
+                              <span className="division-count">{totalMembers} anggota</span>
+                            </div>
                           </div>
-                          <div className="division-title-info">
-                            <span className="division-name">{div.work_unit}</span>
-                            <span className="division-count">{totalMembers} members</span>
+                          <div className="division-header-right">
+                            <label className="division-select-all" onClick={e => e.stopPropagation()}>
+                              <input
+                                type="checkbox"
+                                checked={allSelected}
+                                ref={el => { if (el) el.indeterminate = someSelected && !allSelected; }}
+                                onChange={() => toggleSelectAllDivision(div.id)}
+                              />
+                              <span>Pilih Semua</span>
+                            </label>
+                            <svg className={`division-chevron ${isExpanded ? 'expanded' : ''}`} viewBox="0 0 24 24" width="20" height="20">
+                              <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#64748b" />
+                            </svg>
                           </div>
                         </div>
-                        <div className="division-header-right">
-                          <label className="division-select-all" onClick={e => e.stopPropagation()}>
-                            <input
-                              type="checkbox"
-                              checked={allSelected}
-                              ref={el => { if (el) el.indeterminate = someSelected && !allSelected; }}
-                              onChange={() => toggleSelectAllDivision(div.id)}
-                            />
-                            <span>Select All</span>
-                          </label>
-                          <svg className={`division-chevron ${isExpanded ? 'expanded' : ''}`} viewBox="0 0 24 24" width="20" height="20">
-                            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#64748b"/>
-                          </svg>
-                        </div>
+
+                        {/* Employee list */}
+                        {isExpanded && (
+                          <div className="division-members">
+                            {emps.length === 0 ? (
+                              <div className="division-no-members">Tidak ada anggota ditemukan.</div>
+                            ) : (
+                              emps.map(emp => {
+                                const checked = pendingSelection.has(emp.id);
+                                return (
+                                  <div
+                                    key={emp.id}
+                                    className={`division-member-item ${checked ? 'checked' : ''}`}
+                                    onClick={() => toggleEmployee(emp.id)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => toggleEmployee(emp.id)}
+                                      onClick={e => e.stopPropagation()}
+                                      className="member-checkbox"
+                                    />
+                                    <div className="member-avatar" style={{ background: avatarColor(emp.full_name) }}>
+                                      {initials(emp.full_name)}
+                                    </div>
+                                    <div className="member-info">
+                                      <div className="member-name">{emp.full_name}</div>
+                                      <div className="member-position">{emp.position?.position || '-'}</div>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        )}
                       </div>
+                    );
+                  })}
 
-                      {/* Employee list */}
-                      {isExpanded && (
-                        <div className="division-members">
-                          {emps.length === 0 ? (
-                            <div className="division-no-members">Tidak ada anggota ditemukan.</div>
-                          ) : (
-                            emps.map(emp => {
-                              const checked = pendingSelection.has(emp.id);
-                              return (
-                                <div
-                                  key={emp.id}
-                                  className={`division-member-item ${checked ? 'checked' : ''}`}
-                                  onClick={() => toggleEmployee(emp.id)}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    onChange={() => toggleEmployee(emp.id)}
-                                    onClick={e => e.stopPropagation()}
-                                    className="member-checkbox"
-                                  />
-                                  <div className="member-avatar" style={{ background: avatarColor(emp.full_name) }}>
-                                    {initials(emp.full_name)}
-                                  </div>
-                                  <div className="member-info">
-                                    <div className="member-name">{emp.full_name}</div>
-                                    <div className="member-position">{emp.position?.position || '-'}</div>
-                                  </div>
-                                </div>
-                              );
-                            })
-                          )}
+                  {/* Seksi Tanpa Unit Kerja */}
+                  {(() => {
+                    const q = divisionSearch.toLowerCase().trim();
+                    const unassignedFiltered = q
+                      ? unassignedEmployees.filter(e => e.full_name.toLowerCase().includes(q))
+                      : unassignedEmployees;
+                    if (unassignedFiltered.length === 0 && q) return null;
+                    const allSel = unassignedFiltered.length > 0 && unassignedFiltered.every(e => pendingSelection.has(e.id));
+                    const someSel = unassignedFiltered.some(e => pendingSelection.has(e.id));
+                    const toggleAllUnassigned = () => {
+                      setPendingSelection(prev => {
+                        const next = new Set(prev);
+                        if (allSel) unassignedFiltered.forEach(e => next.delete(e.id));
+                        else unassignedFiltered.forEach(e => next.add(e.id));
+                        return next;
+                      });
+                    };
+                    return (
+                      <div className="division-section">
+                        <div className="division-header" onClick={() => setExpandedUnassigned(v => !v)}>
+                          <div className="division-header-left">
+                            <div className="division-icon" style={{ background: '#fef3c7' }}>
+                              <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#d97706" /></svg>
+                            </div>
+                            <div className="division-title-info">
+                              <span className="division-name">Tanpa Unit Kerja</span>
+                              <span className="division-count">{unassignedEmployees.length} anggota</span>
+                            </div>
+                          </div>
+                          <div className="division-header-right">
+                            <label className="division-select-all" onClick={e => e.stopPropagation()}>
+                              <input
+                                type="checkbox"
+                                checked={allSel}
+                                ref={el => { if (el) el.indeterminate = someSel && !allSel; }}
+                                onChange={toggleAllUnassigned}
+                              />
+                              <span>Pilih Semua</span>
+                            </label>
+                            <svg className={`division-chevron ${expandedUnassigned ? 'expanded' : ''}`} viewBox="0 0 24 24" width="20" height="20">
+                              <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#64748b" />
+                            </svg>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })
+
+                        {expandedUnassigned && (
+                          <div className="division-members">
+                            {unassignedFiltered.length === 0 ? (
+                              <div className="division-no-members">Tidak ada anggota ditemukan.</div>
+                            ) : (
+                              unassignedFiltered.map(emp => {
+                                const checked = pendingSelection.has(emp.id);
+                                return (
+                                  <div
+                                    key={emp.id}
+                                    className={`division-member-item ${checked ? 'checked' : ''}`}
+                                    onClick={() => toggleEmployee(emp.id)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => toggleEmployee(emp.id)}
+                                      onClick={e => e.stopPropagation()}
+                                      className="member-checkbox"
+                                    />
+                                    <div className="member-avatar" style={{ background: avatarColor(emp.full_name) }}>
+                                      {initials(emp.full_name)}
+                                    </div>
+                                    <div className="member-info">
+                                      <div className="member-name">{emp.full_name}</div>
+                                      <div className="member-position">{emp.position?.position || '-'}</div>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </>
               )}
             </div>
 
@@ -616,8 +710,8 @@ export default function MeetingForm() {
             <div className="division-modal-footer">
               <span className="division-selected-count">{pendingSelection.size} peserta dipilih</span>
               <div className="division-modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowEmpModal(false)}>Cancel</button>
-                <button type="button" className="btn-division-save" onClick={handleModalSave}>Save</button>
+                <button type="button" className="btn-cancel" onClick={() => setShowEmpModal(false)}>Batal</button>
+                <button type="button" className="btn-division-save" onClick={handleModalSave}>Simpan</button>
               </div>
             </div>
           </div>
