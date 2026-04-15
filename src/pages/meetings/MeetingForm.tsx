@@ -173,7 +173,7 @@ export default function MeetingForm() {
   const [showEmpModal, setShowEmpModal] = useState(false);
   const [divisions, setDivisions] = useState<WorkUnit[]>([]);
   const [divisionEmployees, setDivisionEmployees] = useState<Record<number, Employee[]>>({});
-  const [unassignedEmployees, setUnassignedEmployees] = useState<Employee[]>([]); // karyawan tanpa unit kerja
+  const [unassignedEmployees, setUnassignedEmployees] = useState<Employee[]>([]);
   const [allEmployeesMap, setAllEmployeesMap] = useState<Record<number, Employee>>({});
   const [expandedDivisions, setExpandedDivisions] = useState<Set<number>>(new Set());
   const [expandedUnassigned, setExpandedUnassigned] = useState(false);
@@ -215,26 +215,34 @@ export default function MeetingForm() {
     setDivisionLoading(true);
     try {
       const units = await workUnitService.list();
-      setDivisions(units);
+      const namedUnits = units.filter((u: { work_unit: string | null }) => u.work_unit);
+      setDivisions(namedUnits);
+
+      // 1. Ambil karyawan tanpa unit kerja (work_unit_id IS NULL)
+      const unassignedRes = await employeeService.list({ work_unit_id: 'All', per_page: 500 });
+      const unassigned: Employee[] = unassignedRes.data.data || [];
+      setUnassignedEmployees(unassigned);
+      const unassignedIds = new Set(unassigned.map((e: Employee) => e.id));
 
       const empMap: Record<number, Employee[]> = {};
       const allMap: Record<number, Employee> = {};
 
+      // 2. Fetch per unit
+      // Unit 'none' (Semua): include unassigned juga (backend orWhereNull handle)
+      // Unit lain: filter keluar unassigned agar tidak duplikat
       await Promise.all(
-        units.map(async (unit) => {
+        namedUnits.map(async (unit: { id: number; work_unit: string }) => {
           const res = await employeeService.list({ work_unit_id: unit.id, per_page: 200 });
-          const emps = res.data.data || [];
+          const allEmps: Employee[] = res.data.data || [];
+          const emps = unit.work_unit === 'none'
+            ? allEmps
+            : allEmps.filter((e: Employee) => !unassignedIds.has(e.id));
           empMap[unit.id] = emps;
-          emps.forEach(emp => { allMap[emp.id] = emp; });
+          emps.forEach((emp: Employee) => { allMap[emp.id] = emp; });
         })
       );
 
-      // Fetch karyawan tanpa unit kerja
-      const unassignedRes = await employeeService.list({ no_work_unit: 1, per_page: 200 });
-      const unassigned = unassignedRes.data.data || [];
-      setUnassignedEmployees(unassigned);
-      unassigned.forEach(emp => { allMap[emp.id] = emp; });
-
+      unassigned.forEach((emp: Employee) => { allMap[emp.id] = emp; });
       setDivisionEmployees(empMap);
       setAllEmployeesMap(allMap);
       setDivisionDataLoaded(true);
@@ -267,11 +275,12 @@ export default function MeetingForm() {
     );
   }, [participants, participantSearch]);
 
-  /* filtered divisions based on search */
+  /* filtered divisions based on search — hanya unit yang punya nama */
   const filteredDivisions = useMemo(() => {
     const q = divisionSearch.toLowerCase().trim();
-    if (!q) return divisions;
-    return divisions.filter(div => {
+    const named = divisions.filter(div => div.work_unit); // pastikan nama tidak kosong
+    if (!q) return named;
+    return named.filter(div => {
       const emps = divisionEmployees[div.id] || [];
       return (
         div.work_unit.toLowerCase().includes(q) ||
@@ -531,7 +540,7 @@ export default function MeetingForm() {
               <input
                 type="text"
                 className="division-search-input"
-                placeholder="Search participants by name..."
+                placeholder="Cari peserta berdasarkan nama..."
                 value={divisionSearch}
                 onChange={e => setDivisionSearch(e.target.value)}
                 autoFocus
@@ -563,7 +572,7 @@ export default function MeetingForm() {
                               <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" fill="#1d4ed8" /></svg>
                             </div>
                             <div className="division-title-info">
-                              <span className="division-name">{div.work_unit}</span>
+                              <span className="division-name">{div.work_unit === 'none' ? 'Semua' : div.work_unit}</span>
                               <span className="division-count">{totalMembers} anggota</span>
                             </div>
                           </div>

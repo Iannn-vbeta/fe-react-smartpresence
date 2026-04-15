@@ -320,7 +320,7 @@ export default function EmployeeManagement() {
           </div>
         </div>
         <div className="emp-filter-group">
-          <label>Jenis Tenaga</label>
+          <label>Jabatan</label>
           <select
             value={typeId}
             onChange={(e) => {
@@ -328,7 +328,7 @@ export default function EmployeeManagement() {
               setPage(1);
             }}
           >
-            <option value="">Semua Jenis Tenaga</option>
+            <option value="">Semua Jabatan</option>
             {employeeTypes.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.employee_type}
@@ -370,7 +370,7 @@ export default function EmployeeManagement() {
                 <tr>
                   <th>Karyawan</th>
                   <th>NIK</th>
-                  <th>Jenis Tenaga</th>
+                  <th>Jabatan</th>
                   <th>Unit Kerja</th>
                   <th>TTD</th>
                   <th>Aksi</th>
@@ -572,7 +572,7 @@ export default function EmployeeManagement() {
                   </div>
                   <div className="emp-modal-field">
                     <label>
-                      Jenis Tenaga <span className="required">*</span>
+                      Jabatan <span className="required">*</span>
                     </label>
                     <select
                       value={formData.employee_type_id || ""}
@@ -585,7 +585,7 @@ export default function EmployeeManagement() {
                       required
                     >
                       <option value="" disabled>
-                        Pilih jenis tenaga
+                        Pilih jabatan
                       </option>
                       {employeeTypes.map((t) => (
                         <option key={t.id} value={t.id}>
