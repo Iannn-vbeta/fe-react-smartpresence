@@ -332,7 +332,7 @@
 
 .timeline-cell {
   display: table-cell;
-  padding: 0.5rem 0.25rem;
+  padding: 0.85rem 0.25rem;
   border-bottom: 1px solid #f1f5f9;
   font-size: 0.8rem;
   color: #64748b;

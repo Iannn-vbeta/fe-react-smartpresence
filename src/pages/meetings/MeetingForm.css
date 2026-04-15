@@ -80,6 +80,164 @@
   cursor: not-allowed;
 }
 
+/* Sembunyikan AM/PM pada input time di Chrome/Edge agar selalu 24 jam */
+.form-field input[type="time"]::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+.form-field input[type="time"] {
+  -webkit-appearance: none;
+}
+
+/* ─── Custom Scrollable Time Picker ─── */
+.tpd-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.tpd-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #0f172a;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+  user-select: none;
+}
+
+.tpd-trigger:hover,
+.tpd-trigger.open {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+.tpd-display {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.tpd-icon {
+  width: 17px;
+  height: 17px;
+  fill: #94a3b8;
+  flex-shrink: 0;
+}
+
+.tpd-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  width: 170px;
+  overflow: hidden;
+}
+
+.tpd-cols-wrapper {
+  position: relative;
+  height: 200px; /* 5 items × 40px */
+}
+
+/* Center highlight bar */
+.tpd-highlight {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  right: 12px;
+  height: 40px;
+  transform: translateY(-50%);
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tpd-cols {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.tpd-col {
+  flex: 1;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.tpd-col::-webkit-scrollbar {
+  display: none;
+}
+
+.tpd-item {
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s;
+  user-select: none;
+}
+
+.tpd-item:hover { color: #475569; }
+
+.tpd-item.active {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.tpd-sep {
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #334155;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+}
+
+.tpd-footer {
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tpd-ok-btn {
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tpd-ok-btn:hover { background: #1e40af; }
+
 .form-field-error {
   font-size: 0.75rem;
   color: #dc2626;

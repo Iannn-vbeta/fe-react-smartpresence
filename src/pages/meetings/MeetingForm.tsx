@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { meetingService, meetingRoomService } from '../../services/meetingService';
 import { employeeService, workUnitService } from '../../services/employeeService';
@@ -42,6 +42,104 @@ function avatarColor(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+/* ─── Scrollable Time Picker ─── */
+const HOURS_LIST   = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const MINUTES_LIST = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+const ITEM_H = 40;
+
+function ScrollCol({ items, selected, onSelect }: {
+  items: string[];
+  selected: string;
+  onSelect: (v: string) => void;
+}) {
+  const ref  = useRef<HTMLDivElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  const scrollToIdx = useCallback((idx: number, smooth = false) => {
+    ref.current?.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'instant' as ScrollBehavior });
+  }, []);
+
+  // Scroll to selected on first render
+  useEffect(() => {
+    const idx = items.indexOf(selected);
+    if (idx >= 0) scrollToIdx(idx, false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleScroll = () => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      if (!ref.current) return;
+      const idx = Math.round(ref.current.scrollTop / ITEM_H);
+      const clamped = Math.max(0, Math.min(idx, items.length - 1));
+      scrollToIdx(clamped);
+      onSelect(items[clamped]);
+    }, 120);
+  };
+
+  return (
+    <div className="tpd-col" ref={ref} onScroll={handleScroll}>
+      <div style={{ height: ITEM_H * 2, flexShrink: 0 }} />
+      {items.map(item => (
+        <div
+          key={item}
+          className={`tpd-item${item === selected ? ' active' : ''}`}
+          onClick={() => { onSelect(item); scrollToIdx(items.indexOf(item), true); }}
+        >
+          {item}
+        </div>
+      ))}
+      <div style={{ height: ITEM_H * 2, flexShrink: 0 }} />
+    </div>
+  );
+}
+
+function TimePickerInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const parts = value ? value.split(':') : ['00', '00'];
+  const hh = parts[0] || '00';
+  const mm = parts[1] || '00';
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const setHH = useCallback((h: string) => onChange(`${h}:${mm}`), [mm, onChange]);
+  const setMM = useCallback((m: string) => onChange(`${hh}:${m}`), [hh, onChange]);
+
+  return (
+    <div className="tpd-wrapper" ref={wrapRef}>
+      <div className={`tpd-trigger${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)}>
+        <span className="tpd-display">{value || '00:00'}</span>
+        <svg className="tpd-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
+        </svg>
+      </div>
+      {open && (
+        <div className="tpd-dropdown">
+          <div className="tpd-cols-wrapper">
+            <div className="tpd-highlight" />
+            <div className="tpd-cols">
+              <ScrollCol items={HOURS_LIST}   selected={hh} onSelect={setHH} />
+              <div className="tpd-sep">:</div>
+              <ScrollCol items={MINUTES_LIST} selected={mm} onSelect={setMM} />
+            </div>
+          </div>
+          <div className="tpd-footer">
+            <button type="button" className="tpd-ok-btn" onClick={() => setOpen(false)}>OK</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function MeetingForm() {
@@ -300,27 +398,29 @@ export default function MeetingForm() {
             </div>
           </div>
 
-          <div className="form-row">
+          <div className={`form-row ${!isEdit ? 'single' : ''}`}>
             <div className="form-field">
               <label>Tanggal Rapat <span className="required">*</span></label>
               <input type="date" value={meetingDate} onChange={e => setMeetingDate(e.target.value)} required />
               {errors.start_time && <div className="form-field-error">{errors.start_time[0]}</div>}
             </div>
-            <div className="form-field">
-              <label>Pihak Penyelenggara <span className="required">*</span></label>
-              <input type="text" value={organizer} readOnly className="input-readonly" placeholder="Penyelenggara" />
-              {errors.organizer && <div className="form-field-error">{errors.organizer[0]}</div>}
-            </div>
+            {isEdit && (
+              <div className="form-field">
+                <label>Pihak Penyelenggara <span className="required">*</span></label>
+                <input type="text" value={organizer} readOnly className="input-readonly" placeholder="Penyelenggara" />
+                {errors.organizer && <div className="form-field-error">{errors.organizer[0]}</div>}
+              </div>
+            )}
           </div>
 
           <div className="form-row">
             <div className="form-field">
               <label>Waktu Mulai <span className="required">*</span></label>
-              <input type="time" value={startTimeOnly} onChange={e => setStartTimeOnly(e.target.value)} required />
+              <TimePickerInput value={startTimeOnly} onChange={setStartTimeOnly} />
             </div>
             <div className="form-field">
               <label>Waktu Selesai <span className="required">*</span></label>
-              <input type="time" value={endTimeOnly} onChange={e => setEndTimeOnly(e.target.value)} required />
+              <TimePickerInput value={endTimeOnly} onChange={setEndTimeOnly} />
               {errors.end_time && <div className="form-field-error">{errors.end_time[0]}</div>}
             </div>
           </div>
