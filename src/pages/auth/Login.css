@@ -40,10 +40,31 @@
   margin: 0 0 0.5rem 0;
 }
 
-.login-subtitle {
-  color: #64748b; /* slate gray */
-  font-size: 0.95rem;
+.login-quote-wrapper {
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.login-quote {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-style: italic;
   margin: 0.25rem 0;
+  text-align: center;
+  line-height: 1.4;
+  transition: opacity 0.5s ease;
+  opacity: 1;
+}
+
+.login-quote.fade-out {
+  opacity: 0;
+}
+
+.login-quote.fade-in {
+  opacity: 1;
 }
 
 .login-form {
@@ -191,8 +212,8 @@
     font-size: 1.35rem; /* Smaller title */
   }
 
-  .login-subtitle {
-    font-size: 0.85rem; /* Smaller subtitle */
+  .login-quote {
+    font-size: 0.8rem;
   }
 
   .form-group input {
