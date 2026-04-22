@@ -11,32 +11,23 @@ import MeetingManagement from '../pages/meetings/MeetingManagement';
 import MeetingForm from '../pages/meetings/MeetingForm';
 import MeetingDetail from '../pages/meetings/MeetingDetail';
 import WorkUnitManagement from '../pages/work-units/WorkUnitManagement';
+import LaporanRapat from '../pages/laporan/LaporanRapat';
+import LaporanDetail from '../pages/laporan/LaporanDetail';
 
 /* ─── Role constants ─── */
 const ROLE_SUPER_ADMIN = 1;
 // const ROLE_ADMIN = 2;
+const ROLE_SEKRETARIS = 3;
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuthStore();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <Outlet />;
 }
 
-/**
- * Wraps routes that should only be accessible by specific roles.
- * If the user's role_id is not in `allowedRoles`, redirect to /dashboard.
- */
 function RoleProtectedRoute({ allowedRoles }: { allowedRoles: number[] }) {
   const { user } = useAuthStore();
-
-  if (!user || !allowedRoles.includes(user.role_id)) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
+  if (!user || !allowedRoles.includes(user.role_id)) return <Navigate to="/dashboard" replace />;
   return <Outlet />;
 }
 
@@ -46,35 +37,29 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          {/* Routes accessible by ALL authenticated roles */}
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* Meetings – accessible by all roles */}
           <Route path="/meetings" element={<MeetingManagement />} />
           <Route path="/meetings/create" element={<MeetingForm />} />
           <Route path="/meetings/:id" element={<MeetingDetail />} />
           <Route path="/meetings/:id/edit" element={<MeetingForm />} />
 
-          {/* SuperAdmin‑only routes */}
+          {/* Laporan – SuperAdmin + Sekretaris */}
+          <Route element={<RoleProtectedRoute allowedRoles={[ROLE_SUPER_ADMIN, ROLE_SEKRETARIS]} />}>
+            <Route path="/laporan" element={<LaporanRapat />} />
+            <Route path="/laporan/:id" element={<LaporanDetail />} />
+          </Route>
+
+          {/* SuperAdmin only */}
           <Route element={<RoleProtectedRoute allowedRoles={[ROLE_SUPER_ADMIN]} />}>
             <Route path="/employees" element={<EmployeeManagement />} />
             <Route path="/rooms" element={<RoomManagement />} />
             <Route path="/users" element={<UserManagement />} />
-            <Route path="/reports" element={<PlaceholderPage title="Laporan" />} />
             <Route path="/work-units" element={<WorkUnitManagement />} />
           </Route>
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
-  );
-}
-
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div style={{ padding: '1rem 0' }}>
-      <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>{title}</h1>
-      <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Halaman ini sedang dalam pengembangan.</p>
-    </div>
   );
 }
 

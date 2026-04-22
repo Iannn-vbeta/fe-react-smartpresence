@@ -7,6 +7,7 @@ import './Sidebar.css';
 /* ─── Role constants ─── */
 const ROLE_SUPER_ADMIN = 1;
 const ROLE_ADMIN = 2;
+const ROLE_SEKRETARIS = 3;
 
 /*
  * Each menu item can have a `roles` array.
@@ -63,11 +64,11 @@ const menuItems: MenuItem[] = [
   },
   {
     label: 'Laporan',
-    path: '/reports',
+    path: '/laporan',
     icon: (
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
     ),
-    roles: [ROLE_SUPER_ADMIN],
+    roles: [ROLE_SUPER_ADMIN, ROLE_SEKRETARIS],
   },
   {
     label: 'Unit Kerja',

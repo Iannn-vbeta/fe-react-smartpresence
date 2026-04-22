@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
+import { useAuthStore } from '../../store/authStore';
+import DashboardSekretaris from './DashboardSekretaris';
 import './Dashboard.css';
 
 /* ─── Types ─── */
@@ -106,6 +108,9 @@ function getTimelineWidth(startStr: string, endStr: string): number {
 
 /* ─── Component ─── */
 export default function Dashboard() {
+  const { user } = useAuthStore();
+  if (user?.role_id === 3) return <DashboardSekretaris />;
+
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
