@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { laporanService } from '../../services/laporanService';
+import { employeeService } from '../../services/employeeService';
+import type { Employee } from '../../types/employee';
 import './LaporanDetail.css';
 
 /* Types */
@@ -23,6 +25,50 @@ function fmtTime(d: string) { return new Date(d).toLocaleTimeString('id-ID', { h
 function statusLabel(s: string) { return { menunggu: 'Menunggu', berlangsung: 'Berlangsung', selesai: 'Selesai', dibatalkan: 'Dibatalkan' }[s] || s; }
 function fmtDateTime(d: string) { const dt = new Date(d); return dt.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
 
+/* Custom Searchable Select */
+function SearchableSelect({ label, placeholder, value, options, onChange }: { label: string; placeholder: string; value: string; options: { name: string; position: string }[]; onChange: (name: string, position: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const filtered = options.filter(o => o.name.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="lap-searchable-select" ref={wrapperRef}>
+      <label>{label} <span className="required">*</span></label>
+      <div className={`lap-select-trigger ${open ? 'open' : ''}`} onClick={() => { setOpen(!open); setSearch(''); }}>
+        <span className={value ? 'has-value' : 'placeholder'}>{value || placeholder}</span>
+        <svg viewBox="0 0 24 24" width="16" height="16">
+          <path d="M12 16L6 10H18L12 16Z" fill="#94a3b8"/>
+          <path d="M12 8L18 14H6L12 8Z" fill="#94a3b8" style={{ transform: 'translateY(-6px)' }} />
+        </svg>
+      </div>
+      {open && (
+        <div className="lap-select-dropdown">
+          <input type="text" placeholder="Cari karyawan..." value={search} onChange={e => setSearch(e.target.value)} autoFocus className="lap-select-search-input" />
+          <div className="lap-select-options">
+            {filtered.length === 0 ? <div className="lap-select-empty">Tidak ada karyawan ditemukan</div> : 
+             filtered.map((o, idx) => (
+               <div key={idx} className="lap-select-option" onClick={() => { onChange(o.name, o.position); setOpen(false); }}>
+                 {o.name}
+               </div>
+             ))
+            }
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function LaporanDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,6 +85,7 @@ export default function LaporanDetail() {
   const [toast, setToast] = useState('');
   const [showExport, setShowExport] = useState(false);
   const [exportSections, setExportSections] = useState({ info: true, undangan: true, kehadiran: true, notulensi: true, dokumentasi: true });
+  const [employees, setEmployees] = useState<Employee[]>([]);
 
   const fetchData = useCallback(async () => {
     if (!id) return;
@@ -57,6 +104,10 @@ export default function LaporanDetail() {
   }, [id]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  useEffect(() => {
+    employeeService.list({ per_page: 1000 }).then(res => setEmployees(res.data.data || [])).catch(() => {});
+  }, []);
 
   /* Quill image upload handler */
   const imageHandler = useCallback(() => {
@@ -193,10 +244,13 @@ export default function LaporanDetail() {
           <div style={{ overflowX: 'auto' }}>
             <table className="lap-attendance-table">
               <thead><tr><th>No</th><th>Nama Peserta</th><th>Waktu Absen</th><th>Tanda Tangan</th></tr></thead>
-              <tbody>{participants.map((p, i) => (
+              <tbody>{participants.map((p, i) => {
+                const emp = employees.find(e => e.nip === p.nip || e.full_name === p.nama);
+                const signatureUrl = emp?.signature_url;
+                return (
                 <tr key={i}><td>{i + 1}</td><td>{p.nama}</td><td>{p.check_in ? fmtTime(p.check_in) : '-'}</td>
-                  <td>{p.status === 'Hadir' ? <span className="lap-sig-box">{p.nama.split(' ').pop()}</span> : '-'}</td></tr>
-              ))}</tbody>
+                  <td>{p.status === 'Hadir' ? (signatureUrl ? <img src={signatureUrl} alt="Tanda Tangan" style={{ height: '40px', objectFit: 'contain' }} /> : <span className="lap-sig-box">{p.nama.split(' ').pop()}</span>) : '-'}</td></tr>
+              )})}</tbody>
             </table>
           </div>
         }
@@ -225,9 +279,11 @@ export default function LaporanDetail() {
         {dokumentasiDocs.length === 0 ? <div style={{ color: '#94a3b8', fontSize: '.875rem' }}>Belum ada dokumentasi.</div> :
           dokumentasiDocs.map(doc => (
             <div className="lap-doc-item" key={doc.id}>
-              <div className="lap-doc-info">
-                <div className="lap-doc-icon"><svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg></div>
-                <div><div className="lap-doc-name">{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
+              <div className="lap-doc-info" style={{ cursor: doc.url ? 'pointer' : 'default' }} onClick={() => doc.url && window.open(doc.url, '_blank')}>
+                <div className="lap-doc-icon" style={{ padding: 0, overflow: 'hidden' }}>
+                  {doc.url ? <img src={doc.url} alt={doc.file_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>}
+                </div>
+                <div><div className="lap-doc-name" style={{ color: doc.url ? '#1d4ed8' : 'inherit' }}>{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>
               <div className="lap-doc-actions"><button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>
             </div>
@@ -240,14 +296,22 @@ export default function LaporanDetail() {
         <div className="lap-section-header"><h2>Tanda Tangan</h2></div>
         <div className="lap-ttd-row">
           <div className="lap-ttd-group">
-            <label>Penanggung Jawab <span className="required">*</span></label>
-            <input placeholder="Nama Penanggung Jawab" value={directorName} onChange={e => setDirectorName(e.target.value)} />
-            <input placeholder="Jabatan" value={directorPosition} onChange={e => setDirectorPosition(e.target.value)} style={{ marginTop: '.5rem' }} />
+            <SearchableSelect
+              label="Penanggung Jawab"
+              placeholder="Pilih Penanggung Jawab"
+              value={directorName}
+              options={employees.map(e => ({ name: e.full_name, position: e.position?.position || e.employee_type?.employee_type || '' }))}
+              onChange={(name, position) => { setDirectorName(name); setDirectorPosition(position); }}
+            />
           </div>
           <div className="lap-ttd-group">
-            <label>Notulensi <span className="required">*</span></label>
-            <input placeholder="Nama Notulensi" value={notulisName} onChange={e => setNotulisName(e.target.value)} />
-            <input placeholder="Jabatan" value={notulisPosition} onChange={e => setNotulisPosition(e.target.value)} style={{ marginTop: '.5rem' }} />
+            <SearchableSelect
+              label="Notulensi"
+              placeholder="Pilih Notulensi"
+              value={notulisName}
+              options={employees.map(e => ({ name: e.full_name, position: e.position?.position || e.employee_type?.employee_type || '' }))}
+              onChange={(name, position) => { setNotulisName(name); setNotulisPosition(position); }}
+            />
           </div>
         </div>
       </div>

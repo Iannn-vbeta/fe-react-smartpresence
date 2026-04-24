@@ -89,3 +89,20 @@
 .lap-detail-spinner{width:24px;height:24px;border:3px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:ldSpin .6s linear infinite}
 @keyframes ldSpin{to{transform:rotate(360deg)}}
 @media(max-width:768px){.lap-info-badges{grid-template-columns:1fr}.lap-header-card{flex-direction:column;align-items:flex-start}.lap-ttd-row{grid-template-columns:1fr}}
+
+/* Searchable Select Custom UI */
+.lap-searchable-select { position: relative; margin-bottom: 0; }
+.lap-searchable-select label { display: block; font-size: .85rem; font-weight: 600; color: #3b82f6; margin-bottom: .5rem; }
+.lap-searchable-select .required { color: #ef4444; }
+.lap-select-trigger { display: flex; align-items: center; justify-content: space-between; padding: .6rem .75rem; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; cursor: pointer; transition: all .15s; }
+.lap-select-trigger.open { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+.lap-select-trigger .placeholder { color: #0f172a; font-size: .875rem; font-weight: 500; }
+.lap-select-trigger .has-value { color: #0f172a; font-size: .875rem; font-weight: 500; }
+.lap-select-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: .35rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.08); z-index: 50; overflow: hidden; display: flex; flex-direction: column; }
+.lap-select-search-input { width: 100%; padding: .65rem .75rem; border: none; border-bottom: 1px solid #e2e8f0; font-size: .875rem; outline: none; background: #f8fafc; box-sizing: border-box; }
+.lap-select-search-input:focus { background: #fff; }
+.lap-select-options { max-height: 200px; overflow-y: auto; }
+.lap-select-option { padding: .55rem .75rem; font-size: .875rem; color: #0f172a; cursor: pointer; transition: background .15s; border-bottom: 1px solid #f8fafc; }
+.lap-select-option:last-child { border-bottom: none; }
+.lap-select-option:hover { background: #f1f5f9; color: #3b82f6; }
+.lap-select-empty { padding: .75rem; font-size: .85rem; color: #94a3b8; text-align: center; font-style: italic; }
