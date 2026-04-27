@@ -7,5 +7,11 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
+    proxy: {
+      '/storage': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
   },
 });

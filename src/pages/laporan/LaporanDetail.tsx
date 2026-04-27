@@ -4,6 +4,7 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { laporanService } from '../../services/laporanService';
 import { employeeService } from '../../services/employeeService';
+import { generateLaporanPdf } from './generatePdf';
 import type { Employee } from '../../types/employee';
 import './LaporanDetail.css';
 
@@ -84,6 +85,7 @@ export default function LaporanDetail() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
   const [showExport, setShowExport] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [exportSections, setExportSections] = useState({ info: true, undangan: true, kehadiran: true, notulensi: true, dokumentasi: true });
   const [employees, setEmployees] = useState<Employee[]>([]);
 
@@ -230,7 +232,8 @@ export default function LaporanDetail() {
                 <div><div className="lap-doc-name">{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>
               <div className="lap-doc-actions">
-                {doc.url && <a href={doc.url} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></a>}
+                {doc.url && <a href={doc.url} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v2H5z"/></svg></a>}
+                <button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
               </div>
             </div>
           ))
@@ -245,7 +248,10 @@ export default function LaporanDetail() {
             <table className="lap-attendance-table">
               <thead><tr><th>No</th><th>Nama Peserta</th><th>Waktu Absen</th><th>Tanda Tangan</th></tr></thead>
               <tbody>{participants.map((p, i) => {
-                const emp = employees.find(e => e.nip === p.nip || e.full_name === p.nama);
+                const emp = employees.find(e => 
+                  (p.nip && p.nip !== '-' && e.nip === p.nip) || 
+                  e.full_name?.toLowerCase().trim() === p.nama?.toLowerCase().trim()
+                );
                 const signatureUrl = emp?.signature_url;
                 return (
                 <tr key={i}><td>{i + 1}</td><td>{p.nama}</td><td>{p.check_in ? fmtTime(p.check_in) : '-'}</td>
@@ -341,8 +347,35 @@ export default function LaporanDetail() {
             </div>
             <div className="lap-modal-footer">
               <button className="lap-btn-cancel" onClick={() => setShowExport(false)}>Batal</button>
-              <button className="lap-export-btn" onClick={() => { setShowExport(false); showToast('Fitur ekspor PDF akan segera tersedia!'); }}>
-                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Ekspor PDF
+              <button className="lap-export-btn" disabled={exporting} onClick={async () => {
+                if (!data) return;
+                setExporting(true);
+                try {
+                  await generateLaporanPdf({
+                    meeting: data.meeting,
+                    room: data.room,
+                    attendance_summary: data.attendance_summary,
+                    participants,
+                    employees,
+                    notulensiContent: content,
+                    directorName,
+                    directorPosition,
+                    notulisName,
+                    notulisPosition,
+                    documents: data.documents,
+                    exportSections,
+                  });
+                  showToast('PDF berhasil diunduh!');
+                } catch (e) {
+                  console.error('PDF export error:', e);
+                  showToast('Gagal mengekspor PDF');
+                } finally {
+                  setExporting(false);
+                  setShowExport(false);
+                }
+              }}>
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                {exporting ? 'Mengekspor...' : 'Ekspor PDF'}
               </button>
             </div>
           </div>
