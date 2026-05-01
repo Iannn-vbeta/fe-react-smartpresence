@@ -7,8 +7,8 @@ import logoKananSrc from '../../assets/icons/laporan/hasil/logo kanan.webp';
 /* ─── Constants ─── */
 const PW = 210, ML = 20, MR = 20, CW = PW - ML - MR; // A4 width, margins, content width (mm)
 const PAGE_BOTTOM = 282; // max y before footer
-const HEADER_END = 34;   // y after header line
-const BODY_START = 40;   // y content starts
+const HEADER_END = 38;   // y after header line
+const BODY_START = 44;   // y content starts
 
 /* ─── Types ─── */
 export interface PdfExportData {
@@ -61,24 +61,31 @@ function proxyUrl(url: string): string {
 async function loadImg(url: string): Promise<string | null> {
   try {
     const proxied = proxyUrl(url);
-    // Use fetch to get blob, then convert to data URL (avoids canvas taint)
     const resp = await fetch(proxied);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const blob = await resp.blob();
-    return await new Promise<string | null>((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
+    const blobUrl = URL.createObjectURL(blob);
+    try {
+      const img = new Image();
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = blobUrl; });
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext('2d')!;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0);
+      return c.toDataURL('image/png');
+    } finally { URL.revokeObjectURL(blobUrl); }
   } catch {
-    // Fallback: try Image element (works for same-origin / data URLs)
     try {
       const img = new Image();
       await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = url; });
       const c = document.createElement('canvas');
       c.width = img.naturalWidth; c.height = img.naturalHeight;
-      c.getContext('2d')!.drawImage(img, 0, 0);
+      const ctx = c.getContext('2d')!;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0);
       return c.toDataURL('image/png');
     } catch { return null; }
   }
@@ -86,8 +93,10 @@ async function loadImg(url: string): Promise<string | null> {
 
 /* ─── Draw header on current page ─── */
 function drawHeader(doc: jsPDF, logoL: string | null, logoR: string | null) {
-  if (logoL) doc.addImage(logoL, 'PNG', ML, 8, 22, 18);
-  if (logoR) doc.addImage(logoR, 'PNG', PW - MR - 18, 8, 18, 18);
+  // Logo kiri: original 22x18, scaled 1.5x → 33x27
+  if (logoL) doc.addImage(logoL, 'PNG', ML, 5, 33, 27);
+  // Logo kanan: original 18x18, scaled 1.8x → 32x32
+  if (logoR) doc.addImage(logoR, 'PNG', PW - MR - 32, 2, 32, 32);
 
   const cx = PW / 2;
   doc.setFont('times', 'bold'); doc.setFontSize(14);
@@ -97,9 +106,9 @@ function drawHeader(doc: jsPDF, logoL: string | null, logoR: string | null) {
   doc.text('Telp. (0331) 486200 Fax. (0331) 427088', cx, 23, { align: 'center' });
   doc.text('Website : www.rscitrahusada.com  Email : rs_citrahusada@yahoo.co.id', cx, 27, { align: 'center' });
   doc.setDrawColor(0); doc.setLineWidth(0.6);
-  doc.line(ML, 30, PW - MR, 30);
+  doc.line(ML, 34, PW - MR, 34);
   doc.setLineWidth(0.15);
-  doc.line(ML, 31, PW - MR, 31);
+  doc.line(ML, 35, PW - MR, 35);
 }
 
 function newPage(doc: jsPDF, logoL: string | null, logoR: string | null): number {
