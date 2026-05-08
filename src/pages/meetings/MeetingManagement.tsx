@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { meetingService, meetingRoomService } from '../../services/meetingService';
 import { useAuthStore } from '../../store/authStore';
 import type { Meeting, MeetingRoom, PaginatedResponse } from '../../types/meeting';
@@ -29,6 +29,16 @@ export default function MeetingManagement() {
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  /* toast */
+  const location = useLocation();
+  const [toast, setToast] = useState<string>(location.state?.toastMessage || '');
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   /* filters */
   const [search, setSearch] = useState('');
@@ -163,8 +173,18 @@ export default function MeetingManagement() {
         </div>
       </div>
 
-      {/* Error */}
+      {/* Notifications */}
       {error && <div className="meeting-error">{error}</div>}
+      {toast && (
+        <div className="meeting-toast" style={{
+          backgroundColor: '#10b981', color: 'white', padding: '1rem', borderRadius: '8px', 
+          marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+        }}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          {toast}
+        </div>
+      )}
 
       {/* Table */}
       <div className="meeting-table-wrapper">

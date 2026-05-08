@@ -47,14 +47,20 @@ function fmtJember(d: string) {
   return `Jember, ${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
 }
 
-/** Convert absolute backend URL to relative so Vite proxy handles it */
 function proxyUrl(url: string): string {
-  // Convert http://localhost:8000/storage/... → /storage/...
+  // Convert http://localhost:8000/... → /...
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'localhost' && u.port === '8000') {
+      return u.pathname;
+    }
+  } catch { /* ignore */ }
+  
   try {
     const u = new URL(url, window.location.origin);
-    if (u.pathname.startsWith('/storage')) return u.pathname;
+    if (u.pathname.startsWith('/storage') || u.pathname.startsWith('/api')) return u.pathname;
   } catch { /* ignore */ }
-  // If it already starts with /storage, or is a relative/data URL, return as-is
+  
   return url;
 }
 

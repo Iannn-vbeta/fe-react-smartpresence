@@ -3,15 +3,20 @@
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background: #f1f5f9;
+  background: var(--bg-main);
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll on the entire layout */
 }
 
 .dashboard-layout-content {
   flex: 1;
+  min-width: 0; /* Critical for flex children to be able to shrink below their content size */
+  width: 100%;
   margin-left: 240px;
   padding: 1.5rem 2rem;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 /* ─── RESPONSIVE ─── */

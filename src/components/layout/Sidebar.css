@@ -6,7 +6,7 @@
   left: 0;
   bottom: 0; /* stretches to absolute bottom on all devices */
   width: 240px;
-  background: linear-gradient(180deg, #1e3a8a 0%, #1d4ed8 100%);
+  background: var(--bg-sidebar);
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -107,10 +107,81 @@
   fill: currentColor;
 }
 
-/* ─── Footer / Logout ─── */
+/* ─── Footer / Logout & Theme ─── */
 .sidebar-footer {
   padding: 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ─── Theme Toggle ─── */
+.theme-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.15);
+  margin-bottom: 0.25rem;
+}
+
+.theme-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.theme-toggle-btn {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle-btn.dark {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.theme-toggle-btn.dark .theme-toggle-thumb {
+  transform: translateX(20px);
+  background: #1e293b;
+}
+
+.sun-icon, .moon-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.sun-icon {
+  color: #f59e0b; /* yellow */
+}
+
+.moon-icon {
+  color: #60a5fa; /* blue */
 }
 
 .sidebar-logout-btn {

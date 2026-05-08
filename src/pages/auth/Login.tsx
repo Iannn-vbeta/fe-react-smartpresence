@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { useAuthStore } from '../../store/authStore';
 import './Login.css';
-import logo from '../../assets/images/logo.jpeg';
+import logo from '../../assets/images/logo.png';
 import userIcon from '../../assets/icons/user.webp';
 import lockIcon from '../../assets/icons/gembok.webp';
 import masukIcon from '../../assets/icons/masuk.webp';

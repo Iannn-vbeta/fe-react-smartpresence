@@ -6,20 +6,21 @@
   align-items: center;
   min-height: 100vh;
   width: 100%;
-  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1d4ed8 100%);
+  background: var(--bg-login);
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 1rem;
   box-sizing: border-box;
 }
 
 .login-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-modal);
   width: 100%;
   max-width: 420px;
   padding: 2.5rem 2rem;
   box-sizing: border-box;
+  transition: background-color 0.3s ease;
 }
 
 .login-header {
@@ -34,7 +35,7 @@
 }
 
 .login-title {
-  color: #1a3c87; /* deep blue */
+  color: var(--primary-hover);
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
@@ -49,7 +50,7 @@
 }
 
 .login-quote {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.9rem;
   font-style: italic;
   margin: 0.25rem 0;
@@ -82,7 +83,7 @@
 .form-group label {
   font-weight: 600;
   font-size: 0.875rem;
-  color: #334155;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
 }
 
@@ -104,22 +105,22 @@
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 3rem;
   box-sizing: border-box;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  background-color: #f8fafc;
+  background-color: var(--bg-hover);
   font-size: 0.95rem;
-  color: #0f172a;
+  color: var(--text-main);
   outline: none;
   transition: all 0.2s ease;
 }
 
 .form-group input::placeholder {
-  color: #94a3b8;
+  color: var(--text-light);
 }
 
 .form-group input:focus {
-  border-color: #3b82f6;
-  background-color: #ffffff;
+  border-color: var(--border-focus);
+  background-color: var(--bg-card);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -128,7 +129,7 @@
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  background-color: #1d4ed8; /* strong blue */
+  background-color: var(--primary-color);
   color: #ffffff;
   font-weight: 600;
   font-size: 1rem;
@@ -147,7 +148,7 @@
 }
 
 .login-btn:hover {
-  background-color: #1e40af;
+  background-color: var(--primary-hover);
 }
 
 .login-btn:active {
@@ -155,16 +156,16 @@
 }
 
 .login-btn:disabled {
-  background-color: #93c5fd;
+  background-color: var(--text-light);
   cursor: not-allowed;
   transform: none;
 }
 
 /* Error message */
 .login-error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background-color: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-color);
   padding: 0.75rem 1rem;
   border-radius: 6px;
   font-size: 0.875rem;

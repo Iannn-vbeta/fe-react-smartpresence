@@ -25,6 +25,11 @@ function fmtDate(d: string) { return new Date(d).toLocaleDateString('id-ID', { d
 function fmtTime(d: string) { return new Date(d).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }); }
 function statusLabel(s: string) { return { menunggu: 'Menunggu', berlangsung: 'Berlangsung', selesai: 'Selesai', dibatalkan: 'Dibatalkan' }[s] || s; }
 function fmtDateTime(d: string) { const dt = new Date(d); return dt.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
+function fixUrl(url: string | null | undefined) { 
+  if (!url) return url; 
+  if (url.startsWith('data:')) return url; // Biarkan base64 dari file upload lokal
+  return url.replaceAll('http://localhost:8000', ''); 
+}
 
 /* Custom Searchable Select */
 function SearchableSelect({ label, placeholder, value, options, onChange }: { label: string; placeholder: string; value: string; options: { name: string; position: string }[]; onChange: (name: string, position: string) => void }) {
@@ -96,7 +101,7 @@ export default function LaporanDetail() {
       const [detailRes, exportRes] = await Promise.all([laporanService.getDetail(Number(id)), laporanService.getExport(Number(id))]);
       const d: DetailData = detailRes.data.data;
       setData(d);
-      setContent(d.notulensi?.content || '');
+      setContent(d.notulensi?.content ? fixUrl(d.notulensi.content) || '' : '');
       setDirectorName(d.notulensi?.director_name || '');
       setDirectorPosition(d.notulensi?.director_position || '');
       setNotulisName(d.notulensi?.notulis_name || '');
@@ -123,7 +128,7 @@ export default function LaporanDetail() {
       try {
         const res = await laporanService.uploadMinutesImage(file);
         const quill = quillRef.current?.getEditor();
-        if (quill) { const range = quill.getSelection(true); quill.insertEmbed(range.index, 'image', res.data.url); quill.setSelection(range.index + 1, 0); }
+        if (quill) { const range = quill.getSelection(true); quill.insertEmbed(range.index, 'image', fixUrl(res.data.url)); quill.setSelection(range.index + 1, 0); }
       } catch { alert('Gagal mengunggah gambar'); }
     };
   }, []);
@@ -232,7 +237,7 @@ export default function LaporanDetail() {
                 <div><div className="lap-doc-name">{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>
               <div className="lap-doc-actions">
-                {doc.url && <a href={doc.url} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v2H5z"/></svg></a>}
+                {doc.url && <a href={fixUrl(doc.url)} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v2H5z"/></svg></a>}
                 <button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
               </div>
             </div>
@@ -255,7 +260,7 @@ export default function LaporanDetail() {
                 const signatureUrl = emp?.signature_url;
                 return (
                 <tr key={i}><td>{i + 1}</td><td>{p.nama}</td><td>{p.check_in ? fmtTime(p.check_in) : '-'}</td>
-                  <td>{p.status === 'Hadir' ? (signatureUrl ? <img src={signatureUrl} alt="Tanda Tangan" style={{ height: '40px', objectFit: 'contain' }} /> : <span className="lap-sig-box">{p.nama.split(' ').pop()}</span>) : '-'}</td></tr>
+                  <td>{p.status === 'Hadir' ? (signatureUrl ? <img src={fixUrl(signatureUrl)} alt="Tanda Tangan" style={{ height: '40px', objectFit: 'contain' }} /> : <span className="lap-sig-box">{p.nama.split(' ').pop()}</span>) : '-'}</td></tr>
               )})}</tbody>
             </table>
           </div>
@@ -285,9 +290,9 @@ export default function LaporanDetail() {
         {dokumentasiDocs.length === 0 ? <div style={{ color: '#94a3b8', fontSize: '.875rem' }}>Belum ada dokumentasi.</div> :
           dokumentasiDocs.map(doc => (
             <div className="lap-doc-item" key={doc.id}>
-              <div className="lap-doc-info" style={{ cursor: doc.url ? 'pointer' : 'default' }} onClick={() => doc.url && window.open(doc.url, '_blank')}>
+              <div className="lap-doc-info" style={{ cursor: doc.url ? 'pointer' : 'default' }} onClick={() => doc.url && window.open(fixUrl(doc.url), '_blank')}>
                 <div className="lap-doc-icon" style={{ padding: 0, overflow: 'hidden' }}>
-                  {doc.url ? <img src={doc.url} alt={doc.file_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>}
+                  {doc.url ? <img src={fixUrl(doc.url)} alt={doc.file_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>}
                 </div>
                 <div><div className="lap-doc-name" style={{ color: doc.url ? '#1d4ed8' : 'inherit' }}>{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>

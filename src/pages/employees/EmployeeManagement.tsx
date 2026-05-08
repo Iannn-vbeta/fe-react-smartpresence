@@ -12,6 +12,12 @@ import type {
 } from "../../types/employee";
 import "./EmployeeManagement.css";
 
+function fixUrl(url: string | null | undefined) {
+  if (!url) return url;
+  if (url.startsWith('data:')) return url; // Biarkan base64 dari file upload lokal
+  return url.replace('http://localhost:8000', '');
+}
+
 export default function EmployeeManagement() {
   /* State */
   const [employees, setEmployees] =
@@ -415,7 +421,7 @@ export default function EmployeeManagement() {
                       <div className="emp-table-signature-cell">
                         {emp.signature_url ? (
                           <img
-                            src={emp.signature_url}
+                            src={fixUrl(emp.signature_url)}
                             alt="TTD"
                             className="emp-table-signature"
                             onError={(e) => {
@@ -653,7 +659,7 @@ export default function EmployeeManagement() {
                     <div className="emp-signature-preview">
                       {signaturePreview ? (
                         <>
-                          <img src={signaturePreview} alt="Tanda Tangan" />
+                          <img src={fixUrl(signaturePreview)} alt="Tanda Tangan" />
                           <button
                             type="button"
                             className="emp-signature-remove-btn"

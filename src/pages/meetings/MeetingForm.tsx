@@ -373,7 +373,7 @@ export default function MeetingForm() {
       } else {
         await meetingService.store(payload);
       }
-      navigate('/meetings');
+      navigate('/meetings', { state: { toastMessage: isEdit ? 'Jadwal Rapat berhasil diperbarui!' : 'Jadwal Rapat berhasil dibuat!' } });
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosErr = err as { response?: { data?: { errors?: Record<string, string[]> } } };
