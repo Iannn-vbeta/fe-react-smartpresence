@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import ActionIcon from '../../components/ui/ActionIcon';
 import {
   employeeService,
   employeeTypeService,
@@ -10,6 +11,8 @@ import type {
   WorkUnit,
   PaginatedResponse,
 } from "../../types/employee";
+import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../contexts/ToastContext';
 import "./EmployeeManagement.css";
 
 function fixUrl(url: string | null | undefined) {
@@ -19,6 +22,10 @@ function fixUrl(url: string | null | undefined) {
 }
 
 export default function EmployeeManagement() {
+  const { user } = useAuthStore();
+  const { showToast } = useToast();
+  const isSuperAdmin = user?.role_id === 1;
+
   /* State */
   const [employees, setEmployees] =
     useState<PaginatedResponse<Employee> | null>(null);
@@ -62,7 +69,7 @@ export default function EmployeeManagement() {
     setLoading(true);
     setError(null);
     try {
-      const params: Record<string, string | number> = { page, per_page: 10 };
+      const params: Record<string, string | number> = { page, per_page: 25 };
       if (search) params.search = search;
       if (typeId) params.employee_type_id = typeId;
       if (unitId) params.work_unit_id = unitId;
@@ -185,8 +192,10 @@ export default function EmployeeManagement() {
     try {
       if (selectedEmp) {
         await employeeService.update(selectedEmp.id, fd);
+        showToast("Data karyawan berhasil diubah");
       } else {
         await employeeService.store(fd);
+        showToast("Data karyawan berhasil ditambahkan");
       }
       setShowFormModal(false);
       fetchEmployees();
@@ -215,6 +224,7 @@ export default function EmployeeManagement() {
     setSaving(true);
     try {
       await employeeService.destroy(selectedEmp.id);
+      showToast("Data karyawan berhasil dihapus");
       setShowDeleteModal(false);
       fetchEmployees();
     } catch {
@@ -352,7 +362,7 @@ export default function EmployeeManagement() {
             }}
           >
             <option value="">Semua Unit Kerja</option>
-            {workUnits.map((w) => (
+            {workUnits.filter(w => w.work_unit.toLowerCase() !== 'none').map((w) => (
               <option key={w.id} value={w.id}>
                 {w.work_unit}
               </option>
@@ -446,18 +456,14 @@ export default function EmployeeManagement() {
                           title="Edit"
                           onClick={() => openEditModal(emp)}
                         >
-                          <svg viewBox="0 0 24 24">
-                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
-                          </svg>
+                          <ActionIcon name="edit" size={18} />
                         </button>
                         <button
                           className="emp-action-btn del"
                           title="Hapus"
                           onClick={() => openDeleteModal(emp)}
                         >
-                          <svg viewBox="0 0 24 24">
-                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                          </svg>
+                          <ActionIcon name="hapus" size={18} />
                         </button>
                       </div>
                     </td>
@@ -621,7 +627,7 @@ export default function EmployeeManagement() {
                     }
                   >
                     <option value="">Pilih unit kerja (Opsional)</option>
-                    {workUnits.map((w) => (
+                    {workUnits.filter(w => w.work_unit.toLowerCase() !== 'none').map((w) => (
                       <option key={w.id} value={w.id}>
                         {w.work_unit}
                       </option>

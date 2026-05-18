@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { meetingService } from '../../services/meetingService';
 import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../contexts/ToastContext';
 import type { MeetingDetailData, ParticipantWithAttendance } from '../../types/meeting';
 import './MeetingDetail.css';
 import imgWaiting from '../../assets/icons/Jadwal kehadiran/presensi qr.webp';
@@ -23,6 +24,7 @@ const ROLE_ADMIN = 2;
 export default function MeetingDetail() {
   const { id } = useParams();
   const { user } = useAuthStore();
+  const { showToast } = useToast();
   const isAdmin = user?.role_id === ROLE_ADMIN;
   const [data, setData] = useState<MeetingDetailData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -103,6 +105,7 @@ export default function MeetingDetail() {
     setOpenDropdown(null);
     try {
       await meetingService.manualAttendance(Number(id), p.id, newStatus);
+      showToast("Status kehadiran berhasil diperbarui");
       fetchData();
     } catch {
       // ignore

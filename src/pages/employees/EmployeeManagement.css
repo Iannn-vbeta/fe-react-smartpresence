@@ -188,7 +188,7 @@
   background: none;
 }
 
-.emp-action-btn svg { width: 18px; height: 18px; }
+.emp-action-btn svg, .emp-action-btn img { width: 32px; height: 32px; object-fit: contain; }
 .emp-action-btn.edit svg { fill: var(--primary-color); }
 .emp-action-btn.del svg { fill: var(--danger-color); }
 

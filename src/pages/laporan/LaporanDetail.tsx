@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import ActionIcon from '../../components/ui/ActionIcon';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -10,7 +11,7 @@ import './LaporanDetail.css';
 
 /* Types */
 interface Room { id: number; name: string; location?: string; }
-interface Minutes { id: number; content: string | null; notulis_name: string | null; notulis_position: string | null; director_name: string | null; director_position: string | null; }
+interface Minutes { id: number; content: string | null; notulis_name: string | null; notulis_position: string | null; director_name: string | null; director_position: string | null; director_signature_url?: string | null; notulis_signature_url?: string | null; }
 interface Doc { id: number; type: string; file_name: string; file_size: number; mime_type: string; url: string | null; created_at: string; }
 interface MeetingInfo { id: number; title: string; organizer: string; start_time: string; end_time: string; status: string; }
 interface DetailData {
@@ -25,10 +26,10 @@ function fmtDate(d: string) { return new Date(d).toLocaleDateString('id-ID', { d
 function fmtTime(d: string) { return new Date(d).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }); }
 function statusLabel(s: string) { return { menunggu: 'Menunggu', berlangsung: 'Berlangsung', selesai: 'Selesai', dibatalkan: 'Dibatalkan' }[s] || s; }
 function fmtDateTime(d: string) { const dt = new Date(d); return dt.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
-function fixUrl(url: string | null | undefined) { 
-  if (!url) return url; 
+function fixUrl(url: string | null | undefined) {
+  if (!url) return url;
   if (url.startsWith('data:')) return url; // Biarkan base64 dari file upload lokal
-  return url.replaceAll('http://localhost:8000', ''); 
+  return url.replaceAll('http://localhost:8000', '');
 }
 
 /* Custom Searchable Select */
@@ -53,7 +54,7 @@ function SearchableSelect({ label, placeholder, value, options, onChange }: { la
       <div className={`lap-select-trigger ${open ? 'open' : ''}`} onClick={() => { setOpen(!open); setSearch(''); }}>
         <span className={value ? 'has-value' : 'placeholder'}>{value || placeholder}</span>
         <svg viewBox="0 0 24 24" width="16" height="16">
-          <path d="M12 16L6 10H18L12 16Z" fill="#94a3b8"/>
+          <path d="M12 16L6 10H18L12 16Z" fill="#94a3b8" />
           <path d="M12 8L18 14H6L12 8Z" fill="#94a3b8" style={{ transform: 'translateY(-6px)' }} />
         </svg>
       </div>
@@ -61,12 +62,12 @@ function SearchableSelect({ label, placeholder, value, options, onChange }: { la
         <div className="lap-select-dropdown">
           <input type="text" placeholder="Cari karyawan..." value={search} onChange={e => setSearch(e.target.value)} autoFocus className="lap-select-search-input" />
           <div className="lap-select-options">
-            {filtered.length === 0 ? <div className="lap-select-empty">Tidak ada karyawan ditemukan</div> : 
-             filtered.map((o, idx) => (
-               <div key={idx} className="lap-select-option" onClick={() => { onChange(o.name, o.position); setOpen(false); }}>
-                 {o.name}
-               </div>
-             ))
+            {filtered.length === 0 ? <div className="lap-select-empty">Tidak ada karyawan ditemukan</div> :
+              filtered.map((o, idx) => (
+                <div key={idx} className="lap-select-option" onClick={() => { onChange(o.name, o.position); setOpen(false); }}>
+                  {o.name}
+                </div>
+              ))
             }
           </div>
         </div>
@@ -113,7 +114,7 @@ export default function LaporanDetail() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
-    employeeService.list({ per_page: 1000 }).then(res => setEmployees(res.data.data || [])).catch(() => {});
+    employeeService.list({ per_page: 1000 }).then(res => setEmployees(res.data.data || [])).catch(() => { });
   }, []);
 
   /* Quill image upload handler */
@@ -176,35 +177,35 @@ export default function LaporanDetail() {
 
   return (
     <div className="lap-detail">
-      {toast && <div className="lap-toast"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>{toast}</div>}
+      {toast && <div className="lap-toast"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>{toast}</div>}
 
       <button className="lap-back" onClick={() => navigate('/laporan')}>
-        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Kembali ke Daftar Laporan
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" /></svg>Kembali ke Daftar Laporan
       </button>
 
       {/* Header */}
       <div className="lap-header-card">
         <div className="lap-header-left">
-          <div className="lap-header-icon"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg></div>
+          <div className="lap-header-icon"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" /></svg></div>
           <div className="lap-header-text"><h1>{meeting.title}</h1><span className={`lap-header-status ${meeting.status}`}>{statusLabel(meeting.status)}</span></div>
         </div>
         <button className="lap-export-btn" onClick={() => setShowExport(true)}>
-          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Ekspor PDF
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" /></svg>Ekspor PDF
         </button>
       </div>
 
       {/* Info badges */}
       <div className="lap-info-badges">
         <div className="lap-info-badge">
-          <div className="lap-info-badge-icon blue"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg></div>
+          <div className="lap-info-badge-icon blue"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" /></svg></div>
           <div><div className="lap-info-badge-label">Tanggal</div><div className="lap-info-badge-value">{fmtDate(meeting.start_time)}</div></div>
         </div>
         <div className="lap-info-badge">
-          <div className="lap-info-badge-icon orange"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg></div>
+          <div className="lap-info-badge-icon orange"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" /></svg></div>
           <div><div className="lap-info-badge-label">Waktu</div><div className="lap-info-badge-value">{fmtTime(meeting.start_time)} - {fmtTime(meeting.end_time)}</div></div>
         </div>
         <div className="lap-info-badge">
-          <div className="lap-info-badge-icon green"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></div>
+          <div className="lap-info-badge-icon green"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" /></svg></div>
           <div><div className="lap-info-badge-label">Ruangan</div><div className="lap-info-badge-value">{room?.name || '-'}</div></div>
         </div>
       </div>
@@ -225,7 +226,7 @@ export default function LaporanDetail() {
         <div className="lap-section-header">
           <h2>Undangan Rapat</h2>
           <label className="lap-upload-btn">
-            <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>Unggah Undangan (PDF)
+            <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" /></svg>Unggah Undangan (PDF)
             <input type="file" accept=".pdf" onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadDoc(f, 'undangan'); e.target.value = ''; }} />
           </label>
         </div>
@@ -233,12 +234,12 @@ export default function LaporanDetail() {
           undanganDocs.map(doc => (
             <div className="lap-doc-item" key={doc.id}>
               <div className="lap-doc-info">
-                <div className="lap-doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg></div>
+                <div className="lap-doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" /></svg></div>
                 <div><div className="lap-doc-name">{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>
               <div className="lap-doc-actions">
-                {doc.url && <a href={fixUrl(doc.url)} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v2H5z"/></svg></a>}
-                <button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+                {doc.url && <a href={fixUrl(doc.url)} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><ActionIcon name="unduh" size={16} /></a>}
+                <button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><ActionIcon name="hapus" size={16} /></button>
               </div>
             </div>
           ))
@@ -253,15 +254,16 @@ export default function LaporanDetail() {
             <table className="lap-attendance-table">
               <thead><tr><th>No</th><th>Nama Peserta</th><th>Waktu Absen</th><th>Tanda Tangan</th></tr></thead>
               <tbody>{participants.map((p, i) => {
-                const emp = employees.find(e => 
-                  (p.nip && p.nip !== '-' && e.nip === p.nip) || 
+                const emp = employees.find(e =>
+                  (p.nip && p.nip !== '-' && e.nip === p.nip) ||
                   e.full_name?.toLowerCase().trim() === p.nama?.toLowerCase().trim()
                 );
-                const signatureUrl = emp?.signature_url;
+                const signatureUrl = p.signature_url || emp?.signature_url;
                 return (
-                <tr key={i}><td>{i + 1}</td><td>{p.nama}</td><td>{p.check_in ? fmtTime(p.check_in) : '-'}</td>
-                  <td>{p.status === 'Hadir' ? (signatureUrl ? <img src={fixUrl(signatureUrl)} alt="Tanda Tangan" style={{ height: '40px', objectFit: 'contain' }} /> : <span className="lap-sig-box">{p.nama.split(' ').pop()}</span>) : '-'}</td></tr>
-              )})}</tbody>
+                  <tr key={i}><td>{i + 1}</td><td>{p.nama}</td><td>{p.check_in ? fmtTime(p.check_in) : '-'}</td>
+                    <td>{p.status === 'Hadir' ? (signatureUrl ? <img src={fixUrl(signatureUrl)} alt="Tanda Tangan" style={{ height: '40px', objectFit: 'contain' }} /> : <span className="lap-sig-box">{p.nama.split(' ').pop()}</span>) : '-'}</td></tr>
+                )
+              })}</tbody>
             </table>
           </div>
         }
@@ -282,7 +284,7 @@ export default function LaporanDetail() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
             <span className="lap-section-meta">Maksimal 3 Gambar</span>
             <label className="lap-upload-btn">
-              <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>Unggah Foto
+              <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" /></svg>Unggah Foto
               <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) { if (dokumentasiDocs.length >= 3) { alert('Maksimal 3 gambar'); return; } handleUploadDoc(f, 'dokumentasi'); } e.target.value = ''; }} />
             </label>
           </div>
@@ -292,11 +294,11 @@ export default function LaporanDetail() {
             <div className="lap-doc-item" key={doc.id}>
               <div className="lap-doc-info" style={{ cursor: doc.url ? 'pointer' : 'default' }} onClick={() => doc.url && window.open(fixUrl(doc.url), '_blank')}>
                 <div className="lap-doc-icon" style={{ padding: 0, overflow: 'hidden' }}>
-                  {doc.url ? <img src={fixUrl(doc.url)} alt={doc.file_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>}
+                  {doc.url ? <img src={fixUrl(doc.url)} alt={doc.file_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" /></svg>}
                 </div>
                 <div><div className="lap-doc-name" style={{ color: doc.url ? '#1d4ed8' : 'inherit' }}>{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>
-              <div className="lap-doc-actions"><button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>
+              <div className="lap-doc-actions"><button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><ActionIcon name="hapus" size={16} /></button></div>
             </div>
           ))
         }
@@ -331,7 +333,7 @@ export default function LaporanDetail() {
       <div className="lap-bottom-bar">
         <button className="lap-btn-cancel" onClick={() => navigate('/laporan')}>Batal</button>
         <button className="lap-btn-save" onClick={handleSave} disabled={saving}>
-          <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" /></svg>
           {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
       </div>
@@ -340,7 +342,7 @@ export default function LaporanDetail() {
       {showExport && (
         <div className="lap-modal-overlay" onClick={() => setShowExport(false)}>
           <div className="lap-modal" onClick={e => e.stopPropagation()}>
-            <button className="lap-modal-close" onClick={() => setShowExport(false)}><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            <button className="lap-modal-close" onClick={() => setShowExport(false)}><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></button>
             <h3>Ekspor Laporan ke PDF</h3>
             <p>Pilih dokumen yang ingin disertakan dalam file PDF</p>
             <div>
@@ -363,6 +365,7 @@ export default function LaporanDetail() {
                     participants,
                     employees,
                     notulensiContent: content,
+                    notulensi: data.notulensi,
                     directorName,
                     directorPosition,
                     notulisName,
@@ -379,7 +382,7 @@ export default function LaporanDetail() {
                   setShowExport(false);
                 }
               }}>
-                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" /></svg>
                 {exporting ? 'Mengekspor...' : 'Ekspor PDF'}
               </button>
             </div>

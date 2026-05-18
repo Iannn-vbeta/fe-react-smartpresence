@@ -43,11 +43,11 @@
 .lap-doc-name{font-weight:600;font-size:.875rem;color:var(--text-main)}
 .lap-doc-meta{font-size:.75rem;color:var(--text-muted)}
 .lap-doc-actions{display:flex;gap:.5rem}
-.lap-doc-action-btn{width:32px;height:32px;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;text-decoration:none}
+.lap-doc-action-btn{width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;text-decoration:none;background:none}
 .lap-doc-action-btn:hover{opacity:.8}
-.lap-doc-action-btn svg{width:16px;height:16px;fill:#fff}
-.lap-doc-action-btn.download{background:var(--primary-color)}
-.lap-doc-action-btn.delete{background:var(--danger-color)}
+.lap-doc-action-btn svg,.lap-doc-action-btn img{width:28px;height:28px;object-fit:contain}
+.lap-doc-action-btn.download{background:none}
+.lap-doc-action-btn.delete{background:none}
 .lap-attendance-table{width:100%;border-collapse:collapse}
 .lap-attendance-table th{text-align:left;padding:.7rem .75rem;font-size:.8rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border-color)}
 .lap-attendance-table td{padding:.7rem .75rem;font-size:.875rem;color:var(--text-main);border-bottom:1px solid var(--border-color);vertical-align:middle}

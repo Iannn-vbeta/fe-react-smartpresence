@@ -4,6 +4,10 @@ import api from '../../services/api';
 import { laporanService } from '../../services/laporanService';
 import './DashboardSekretaris.css';
 
+import iconRapatHariIniSekertaris from '../../assets/icons/dashboard/rapat hari ini sekertaris.webp';
+import iconLengkap from '../../assets/icons/dashboard/lengkap.webp';
+import iconTidakLengkap from '../../assets/icons/dashboard/tidak lengkap.webp';
+
 interface MeetingRoom { id: number; name: string; location?: string; }
 interface TodayMeeting {
   id: number; title: string; start_time: string; end_time: string;
@@ -62,18 +66,18 @@ export default function DashboardSekretaris() {
         {dateStr && <p>{formatDate(dateStr)}</p>}
       </div>
 
-      <div className="dash-sek-stats">
-        <div className="dash-sek-stat">
-          <div className="dash-sek-stat-info"><span className="dash-sek-stat-label">Rapat Hari Ini</span><span className="dash-sek-stat-value">{rapatHariIni}</span></div>
-          <div className="dash-sek-stat-icon blue"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg></div>
+      <div className="dashboard-stats">
+        <div className="stat-card">
+          <div className="stat-card-info"><span className="stat-card-label">Rapat Hari Ini</span><span className="stat-card-value">{rapatHariIni}</span></div>
+          <div className="stat-card-icon"><img src={iconRapatHariIniSekertaris} alt="Rapat Hari Ini" /></div>
         </div>
-        <div className="dash-sek-stat">
-          <div className="dash-sek-stat-info"><span className="dash-sek-stat-label">Dok. Lengkap</span><span className="dash-sek-stat-value">{dokLengkap}</span></div>
-          <div className="dash-sek-stat-icon green"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
+        <div className="stat-card">
+          <div className="stat-card-info"><span className="stat-card-label">Dok. Lengkap</span><span className="stat-card-value">{dokLengkap}</span></div>
+          <div className="stat-card-icon"><img src={iconLengkap} alt="Dok. Lengkap" /></div>
         </div>
-        <div className="dash-sek-stat">
-          <div className="dash-sek-stat-info"><span className="dash-sek-stat-label">Belum Lengkap</span><span className="dash-sek-stat-value">{rapatHariIni - dokLengkap}</span></div>
-          <div className="dash-sek-stat-icon red"><svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg></div>
+        <div className="stat-card">
+          <div className="stat-card-info"><span className="stat-card-label">Belum Lengkap</span><span className="stat-card-value">{rapatHariIni - dokLengkap}</span></div>
+          <div className="stat-card-icon"><img src={iconTidakLengkap} alt="Belum Lengkap" /></div>
         </div>
       </div>
 

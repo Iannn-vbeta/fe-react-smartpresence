@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import ActionIcon from '../../components/ui/ActionIcon';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { meetingService, meetingRoomService } from '../../services/meetingService';
 import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../contexts/ToastContext';
 import type { Meeting, MeetingRoom, PaginatedResponse } from '../../types/meeting';
 import './MeetingManagement.css';
 
@@ -32,13 +34,16 @@ export default function MeetingManagement() {
 
   /* toast */
   const location = useLocation();
-  const [toast, setToast] = useState<string>(location.state?.toastMessage || '');
+  const { showToast } = useToast();
+  const toastShownRef = useRef(false);
+  
   useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(''), 3000);
-      return () => clearTimeout(timer);
+    if (location.state?.toastMessage && !toastShownRef.current) {
+      showToast(location.state.toastMessage);
+      toastShownRef.current = true;
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [toast]);
+  }, [location.state, showToast, navigate, location.pathname]);
 
   /* filters */
   const [search, setSearch] = useState('');
@@ -62,7 +67,7 @@ export default function MeetingManagement() {
     setLoading(true);
     setError(null);
     try {
-      const params: Record<string, string | number> = { page, per_page: 10 };
+      const params: Record<string, string | number> = { page, per_page: 25 };
       if (search) params.search = search;
       if (roomId) params.room_id = roomId;
       if (date) params.date = date;
@@ -106,6 +111,7 @@ export default function MeetingManagement() {
     setDeleting(true);
     try {
       await meetingService.destroy(deleteTarget.id);
+      showToast("Jadwal Rapat berhasil dihapus");
       setDeleteTarget(null);
       fetchMeetings();
     } catch {
@@ -126,12 +132,10 @@ export default function MeetingManagement() {
           <h1>Manajemen Jadwal Rapat</h1>
           <p>Kelola dan monitor semua jadwal rapat</p>
         </div>
-        {!isAdmin && (
-          <Link to="/meetings/create" className="meeting-add-btn">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" /></svg>
-            Tambah Jadwal Rapat
-          </Link>
-        )}
+        <Link to="/meetings/create" className="meeting-add-btn">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" /></svg>
+          Tambah Jadwal Rapat
+        </Link>
       </div>
 
       {/* Filters */}
@@ -175,16 +179,6 @@ export default function MeetingManagement() {
 
       {/* Notifications */}
       {error && <div className="meeting-error">{error}</div>}
-      {toast && (
-        <div className="meeting-toast" style={{
-          backgroundColor: '#10b981', color: 'white', padding: '1rem', borderRadius: '8px', 
-          marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-        }}>
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-          {toast}
-        </div>
-      )}
 
       {/* Table */}
       <div className="meeting-table-wrapper">
@@ -230,17 +224,15 @@ export default function MeetingManagement() {
                     <td>
                       <div className="action-btn-group">
                         <button className="action-btn view" title="Lihat Detail" onClick={() => navigate(`/meetings/${m.id}`)}>
-                          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" /></svg>
+                          <ActionIcon name="mata" size={18} />
+                        </button>
+                        <button className="action-btn edit" title="Edit" onClick={() => navigate(`/meetings/${m.id}/edit`)}>
+                          <ActionIcon name="edit" size={18} />
                         </button>
                         {!isAdmin && (
-                          <>
-                            <button className="action-btn edit" title="Edit" onClick={() => navigate(`/meetings/${m.id}/edit`)}>
-                              <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" /></svg>
-                            </button>
-                            <button className="action-btn del" title="Hapus" onClick={() => setDeleteTarget(m)}>
-                              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" /></svg>
-                            </button>
-                          </>
+                          <button className="action-btn del" title="Hapus" onClick={() => setDeleteTarget(m)}>
+                            <ActionIcon name="hapus" size={18} />
+                          </button>
                         )}
                       </div>
                     </td>

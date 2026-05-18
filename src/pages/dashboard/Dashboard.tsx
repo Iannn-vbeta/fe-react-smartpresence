@@ -89,22 +89,31 @@ function getStatusClass(status: string): string {
 
 /* ─── Timeline helpers ─── */
 const TIMELINE_START = 7; // 07:00
-const TIMELINE_END = 18; // 18:00
+const TIMELINE_END = 17; // 17:00
 const TIMELINE_HOURS = Array.from({ length: TIMELINE_END - TIMELINE_START + 1 }, (_, i) => TIMELINE_START + i);
 
 function getTimelinePosition(timeStr: string): number {
   const d = new Date(timeStr);
-  const h = d.getHours() + d.getMinutes() / 60;
-  return ((h - TIMELINE_START) / (TIMELINE_END - TIMELINE_START)) * 100;
+  let h = d.getHours() + d.getMinutes() / 60;
+  h = Math.max(TIMELINE_START, Math.min(TIMELINE_END, h));
+  // Tambahkan 0.5 agar rata dengan posisi teks jam di tengah (center) sel
+  return (h - TIMELINE_START) + 0.5;
 }
 
 function getTimelineWidth(startStr: string, endStr: string): number {
   const s = new Date(startStr);
   const e = new Date(endStr);
-  const startH = s.getHours() + s.getMinutes() / 60;
-  const endH = e.getHours() + e.getMinutes() / 60;
-  return ((endH - startH) / (TIMELINE_END - TIMELINE_START)) * 100;
+  let startH = s.getHours() + s.getMinutes() / 60;
+  let endH = e.getHours() + e.getMinutes() / 60;
+  startH = Math.max(TIMELINE_START, Math.min(TIMELINE_END, startH));
+  endH = Math.max(TIMELINE_START, Math.min(TIMELINE_END, endH));
+  return Math.max(0, endH - startH);
 }
+
+import iconTotalKaryawan from '../../assets/icons/dashboard/total karyawan.webp';
+import iconRapatHariIni from '../../assets/icons/dashboard/rapat hari ini.webp';
+import iconRapatMenunggu from '../../assets/icons/dashboard/rapat menunggu.webp';
+import iconRapatSelesai from '../../assets/icons/dashboard/rapat selesai.webp';
 
 /* ─── Component ─── */
 export default function Dashboard() {
@@ -179,8 +188,8 @@ export default function Dashboard() {
             <span className="stat-card-label">Total Karyawan</span>
             <span className="stat-card-value">{summary.total_employees}</span>
           </div>
-          <div className="stat-card-icon blue">
-            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          <div className="stat-card-icon">
+            <img src={iconTotalKaryawan} alt="Total Karyawan" />
           </div>
         </div>
 
@@ -189,8 +198,8 @@ export default function Dashboard() {
             <span className="stat-card-label">Rapat Hari Ini</span>
             <span className="stat-card-value">{summary.meetings_today}</span>
           </div>
-          <div className="stat-card-icon green">
-            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+          <div className="stat-card-icon">
+            <img src={iconRapatHariIni} alt="Rapat Hari Ini" />
           </div>
         </div>
 
@@ -199,8 +208,8 @@ export default function Dashboard() {
             <span className="stat-card-label">Rapat Menunggu</span>
             <span className="stat-card-value">{summary.meetings_pending}</span>
           </div>
-          <div className="stat-card-icon orange">
-            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+          <div className="stat-card-icon">
+            <img src={iconRapatMenunggu} alt="Rapat Menunggu" />
           </div>
         </div>
 
@@ -209,8 +218,8 @@ export default function Dashboard() {
             <span className="stat-card-label">Rapat Selesai</span>
             <span className="stat-card-value">{summary.meetings_completed}</span>
           </div>
-          <div className="stat-card-icon purple">
-            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          <div className="stat-card-icon">
+            <img src={iconRapatSelesai} alt="Rapat Selesai" />
           </div>
         </div>
       </div>
@@ -305,23 +314,26 @@ export default function Dashboard() {
               </div>
 
               {/* Room rows */}
-              {room_usage.map((room) => (
+              {room_usage.map((room, roomIdx) => (
                 <div className="timeline-room-row" key={room.id}>
                   <div className="timeline-cell room-name">{room.name}</div>
                   {TIMELINE_HOURS.map((h, colIdx) => (
                     <div className="timeline-cell" key={h}>
                       {colIdx === 0 &&
-                        room.meetings.map((m, mIdx) => {
+                        room.meetings.map((m) => {
                           const left = getTimelinePosition(m.start_time);
                           const width = getTimelineWidth(m.start_time, m.end_time);
+
+                          if (width <= 0) return null;
+
                           // Offset by the room-name column width (~140px out of total)
                           return (
                             <div
                               key={m.id}
-                              className={`timeline-meeting-block color-${mIdx % 6}`}
+                              className={`timeline-meeting-block color-${roomIdx % 6}`}
                               style={{
-                                left: `calc(${left}% * ${TIMELINE_HOURS.length})`,
-                                width: `calc(${width}% * ${TIMELINE_HOURS.length})`,
+                                left: `calc(${left} * 100%)`,
+                                width: `calc(${width} * 100%)`,
                               }}
                               title={`${m.title}\n${formatTime(m.start_time)} - ${formatTime(m.end_time)}`}
                             >
@@ -339,6 +351,8 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+
       </div>
     </div>
   );

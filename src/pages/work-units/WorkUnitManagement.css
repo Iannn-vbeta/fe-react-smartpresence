@@ -180,7 +180,7 @@
   background: none;
 }
 
-.wu-action-btn svg { width: 18px; height: 18px; }
+.wu-action-btn svg, .wu-action-btn img { width: 32px; height: 32px; object-fit: contain; }
 .wu-action-btn.edit svg { fill: var(--primary-color); }
 .wu-action-btn.del svg { fill: var(--danger-color); }
 .wu-action-btn.edit:hover { background: var(--bg-active); }

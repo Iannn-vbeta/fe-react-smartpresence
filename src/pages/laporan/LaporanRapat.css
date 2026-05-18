@@ -31,11 +31,11 @@
 .laporan-status.menunggu{background:var(--bg-hover);color:var(--text-muted)}
 .laporan-status.dibatalkan{background:var(--danger-bg);color:var(--danger-color)}
 .laporan-actions{display:flex;gap:.5rem}
-.laporan-action-btn{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s,transform .1s}
+.laporan-action-btn{width:40px;height:40px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s,transform .1s;background:none}
 .laporan-action-btn:hover{opacity:.85;transform:scale(1.05)}
-.laporan-action-btn svg{width:18px;height:18px;fill:#fff}
-.laporan-action-btn.view{background:var(--primary-color)}
-.laporan-action-btn.download{background:var(--success-color)}
+.laporan-action-btn svg,.laporan-action-btn img{width:32px;height:32px;object-fit:contain}
+.laporan-action-btn.view{background:none}
+.laporan-action-btn.download{background:none}
 .laporan-pagination{display:flex;justify-content:center;align-items:center;gap:.5rem;padding:1rem 0}
 .laporan-pagination button{padding:.45rem .85rem;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-card);color:var(--text-muted);font-size:.8rem;cursor:pointer;transition:all .15s}
 .laporan-pagination button:hover:not(:disabled){background:var(--bg-hover)}

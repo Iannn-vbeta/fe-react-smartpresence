@@ -215,7 +215,7 @@ export default function MeetingForm() {
     setDivisionLoading(true);
     try {
       const units = await workUnitService.list();
-      const namedUnits = units.filter((u: { work_unit: string | null }) => u.work_unit);
+      const namedUnits = units.filter((u: { work_unit: string | null }) => u.work_unit && u.work_unit.toLowerCase() !== 'none');
       setDivisions(namedUnits);
 
       // 1. Ambil karyawan tanpa unit kerja (work_unit_id IS NULL)
@@ -228,15 +228,12 @@ export default function MeetingForm() {
       const allMap: Record<number, Employee> = {};
 
       // 2. Fetch per unit
-      // Unit 'none' (Semua): include unassigned juga (backend orWhereNull handle)
       // Unit lain: filter keluar unassigned agar tidak duplikat
       await Promise.all(
         namedUnits.map(async (unit: { id: number; work_unit: string }) => {
           const res = await employeeService.list({ work_unit_id: unit.id, per_page: 200 });
           const allEmps: Employee[] = res.data.data || [];
-          const emps = unit.work_unit === 'none'
-            ? allEmps
-            : allEmps.filter((e: Employee) => !unassignedIds.has(e.id));
+          const emps = allEmps.filter((e: Employee) => !unassignedIds.has(e.id));
           empMap[unit.id] = emps;
           emps.forEach((emp: Employee) => { allMap[emp.id] = emp; });
         })

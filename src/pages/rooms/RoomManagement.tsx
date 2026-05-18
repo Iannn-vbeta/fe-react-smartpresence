@@ -1,9 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
+import ActionIcon from '../../components/ui/ActionIcon';
 import { meetingRoomService } from '../../services/meetingService';
 import type { MeetingRoom, PaginatedResponse } from '../../types/meeting';
+import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../contexts/ToastContext';
 import './RoomManagement.css';
 
 export default function RoomManagement() {
+  /* Auth & Toast */
+  const { user } = useAuthStore();
+  const { showToast } = useToast();
+  const isSuperAdmin = user?.role_id === 1;
+
   /* State */
   const [rooms, setRooms] = useState<PaginatedResponse<MeetingRoom> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +37,7 @@ export default function RoomManagement() {
     setLoading(true);
     setError(null);
     try {
-      const params: Record<string, string | number> = { page, per_page: 10 };
+      const params: Record<string, string | number> = { page, per_page: 25 };
       if (search) params.search = search;
       
       const res = await meetingRoomService.listPaginated(params);
@@ -77,8 +85,10 @@ export default function RoomManagement() {
     try {
       if (selectedRoom) {
         await meetingRoomService.update(selectedRoom.id, formData);
+        showToast("Data Ruang Rapat berhasil diubah");
       } else {
         await meetingRoomService.store(formData);
+        showToast("Ruang Rapat baru berhasil ditambahkan");
       }
       setShowFormModal(false);
       fetchRooms();
@@ -97,6 +107,7 @@ export default function RoomManagement() {
     setSaving(true);
     try {
       await meetingRoomService.destroy(selectedRoom.id);
+      showToast("Data Ruang Rapat berhasil dihapus");
       setShowDeleteModal(false);
       fetchRooms();
     } catch {
@@ -217,10 +228,10 @@ export default function RoomManagement() {
                     <td>
                       <div className="action-btn-group">
                         <button className="action-btn edit" title="Edit" onClick={() => openEditModal(room)}>
-                          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                          <ActionIcon name="edit" size={18} />
                         </button>
                         <button className="action-btn del" title="Hapus" onClick={() => openDeleteModal(room)}>
-                          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                          <ActionIcon name="hapus" size={18} />
                         </button>
                       </div>
                     </td>

@@ -18,6 +18,7 @@ export interface PdfExportData {
   participants: { nama: string; nip: string; unit_kerja: string; status: string; check_in: string | null }[];
   employees: { full_name: string; nip: string; signature_url?: string | null; employee_type?: { employee_type: string } | null; position?: { position: string } | null; work_unit?: { work_unit: string } | null }[];
   notulensiContent: string | null;
+  notulensi?: { director_name?: string; director_position?: string; director_signature_url?: string | null; notulis_name?: string; notulis_position?: string; notulis_signature_url?: string | null } | null;
   directorName: string;
   directorPosition: string;
   notulisName: string;
@@ -55,12 +56,12 @@ function proxyUrl(url: string): string {
       return u.pathname;
     }
   } catch { /* ignore */ }
-  
+
   try {
     const u = new URL(url, window.location.origin);
     if (u.pathname.startsWith('/storage') || u.pathname.startsWith('/api')) return u.pathname;
   } catch { /* ignore */ }
-  
+
   return url;
 }
 
@@ -238,12 +239,12 @@ async function drawAttendancePage(doc: jsPDF, data: PdfExportData, logoL: string
 
     // TANDA TANGAN — paste signature image if available
     if (p.status === 'Hadir') {
-      const sigKey = emp?.full_name || p.nama;
+      const sigKey = p.nama || emp?.full_name;
       const sigB64 = sigMap.get(sigKey);
       if (sigB64) {
         try {
           doc.addImage(sigB64, 'PNG', colX[3] + 4, y + 1, colW[3] - 8, rowH - 3);
-        } catch { /* fallback: show number */ 
+        } catch { /* fallback: show number */
           doc.text(`${i + 1}.`, colX[3] + colW[3] / 2, y + rowH / 2 + 1, { align: 'center' });
         }
       } else {
@@ -426,6 +427,19 @@ export async function generateLaporanPdf(data: PdfExportData): Promise<void> {
   for (const emp of data.employees) {
     if (emp.signature_url && !sigMap.has(emp.full_name)) {
       sigMap.set(emp.full_name, await loadImg(emp.signature_url));
+    }
+  }
+  for (const p of data.participants) {
+    if (p.signature_url && p.nama && !sigMap.has(p.nama)) {
+      sigMap.set(p.nama, await loadImg(p.signature_url));
+    }
+  }
+  if (data.notulensi) {
+    if (data.notulensi.director_signature_url && data.notulensi.director_name && !sigMap.has(data.notulensi.director_name)) {
+      sigMap.set(data.notulensi.director_name, await loadImg(data.notulensi.director_signature_url));
+    }
+    if (data.notulensi.notulis_signature_url && data.notulensi.notulis_name && !sigMap.has(data.notulensi.notulis_name)) {
+      sigMap.set(data.notulensi.notulis_name, await loadImg(data.notulensi.notulis_signature_url));
     }
   }
 

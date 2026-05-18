@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
+import ActionIcon from '../../components/ui/ActionIcon';
 import { userService } from '../../services/userService';
 import type { User, Role, PaginatedUsersResponse, UserFormData } from '../../types/user';
+import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../contexts/ToastContext';
 import './UserManagement.css';
 
 /* helpers */
@@ -19,6 +22,9 @@ function getRoleClass(roleName: string) {
 }
 
 export default function UserManagement() {
+  const { user: currentUser } = useAuthStore();
+  const { showToast } = useToast();
+  
   /* List State */
   const [users, setUsers] = useState<PaginatedUsersResponse | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -51,7 +57,7 @@ export default function UserManagement() {
     setLoading(true);
     setError(null);
     try {
-      const params: Record<string, string | number> = { page, per_page: 10 };
+      const params: Record<string, string | number> = { page, per_page: 25 };
       if (search) params.search = search;
       if (roleId) params.role_id = roleId;
 
@@ -98,13 +104,18 @@ export default function UserManagement() {
     setFormErrors({});
     setSaving(true);
 
+    const dataToSubmit = { ...formData };
+    if (!dataToSubmit.password) delete dataToSubmit.password;
+
     try {
       if (selectedUser) {
         // Edit
-        await userService.update(selectedUser.id, formData);
+        await userService.update(selectedUser.id, dataToSubmit);
+        showToast("Data pengguna berhasil diubah");
       } else {
         // Create
-        await userService.store(formData);
+        await userService.store(dataToSubmit);
+        showToast("Data pengguna berhasil ditambahkan");
       }
       setShowFormModal(false);
       fetchUsers();
@@ -126,6 +137,7 @@ export default function UserManagement() {
     setSaving(true);
     try {
       await userService.destroy(selectedUser.id);
+      showToast("Data pengguna berhasil dihapus");
       setShowDeleteModal(false);
       fetchUsers();
     } catch {
@@ -223,7 +235,7 @@ export default function UserManagement() {
                             onClick={() => openEditModal(u)}
                             disabled={isSuperAdmin}
                           >
-                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                            <ActionIcon name="edit" size={18} />
                           </button>
                           <button
                             className="action-btn del"
@@ -231,7 +243,7 @@ export default function UserManagement() {
                             onClick={() => openDeleteModal(u)}
                             disabled={isSuperAdmin}
                           >
-                            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                            <ActionIcon name="hapus" size={18} />
                           </button>
                         </div>
                       </td>

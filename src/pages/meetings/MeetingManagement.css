@@ -185,7 +185,7 @@
   background: none;
 }
 
-.action-btn svg { width: 18px; height: 18px; }
+.action-btn svg, .action-btn img { width: 32px; height: 32px; object-fit: contain; }
 
 .action-btn.view svg  { fill: var(--primary-color); }
 .action-btn.edit svg  { fill: var(--success-color); }
