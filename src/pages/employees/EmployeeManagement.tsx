@@ -11,7 +11,6 @@ import type {
   WorkUnit,
   PaginatedResponse,
 } from "../../types/employee";
-import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../contexts/ToastContext';
 import "./EmployeeManagement.css";
 
@@ -22,9 +21,7 @@ function fixUrl(url: string | null | undefined) {
 }
 
 export default function EmployeeManagement() {
-  const { user } = useAuthStore();
   const { showToast } = useToast();
-  const isSuperAdmin = user?.role_id === 1;
 
   /* State */
   const [employees, setEmployees] =
@@ -431,7 +428,7 @@ export default function EmployeeManagement() {
                       <div className="emp-table-signature-cell">
                         {emp.signature_url ? (
                           <img
-                            src={fixUrl(emp.signature_url)}
+                            src={fixUrl(emp.signature_url) || undefined}
                             alt="TTD"
                             className="emp-table-signature"
                             onError={(e) => {
@@ -665,7 +662,7 @@ export default function EmployeeManagement() {
                     <div className="emp-signature-preview">
                       {signaturePreview ? (
                         <>
-                          <img src={fixUrl(signaturePreview)} alt="Tanda Tangan" />
+                          <img src={fixUrl(signaturePreview) || undefined} alt="Tanda Tangan" />
                           <button
                             type="button"
                             className="emp-signature-remove-btn"

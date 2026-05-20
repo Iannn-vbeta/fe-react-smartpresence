@@ -20,7 +20,6 @@ import iconKeluar from '../../assets/icons/sidebar/Keluar.webp';
 
 /* ─── Role constants ─── */
 const ROLE_SUPER_ADMIN = 1;
-const ROLE_ADMIN = 2;
 const ROLE_SEKRETARIS = 3;
 
 /*
@@ -134,7 +133,7 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
         {/* Brand */}
         <div className="sidebar-brand">
           <div className="sidebar-brand-logo">
-            <img src={sidebarLogo} alt="Logo RS Citra Husada" />
+            <img src={sidebarLogo} alt="Logo RS Citra Husada" width="57" height="57" />
           </div>
           <div className="sidebar-brand-text">
             <h2>RS CITRA HUSADA</h2>

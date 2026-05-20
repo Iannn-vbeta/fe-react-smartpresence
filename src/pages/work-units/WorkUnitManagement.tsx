@@ -2,16 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import ActionIcon from '../../components/ui/ActionIcon';
 import { workUnitService } from '../../services/employeeService';
 import type { WorkUnit, PaginatedResponse } from '../../types/employee';
-import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../contexts/ToastContext';
 import './WorkUnitManagement.css';
 
 type WorkUnitWithCount = WorkUnit & { employees_count?: number };
 
 export default function WorkUnitManagement() {
-  const { user } = useAuthStore();
   const { showToast } = useToast();
-  const isSuperAdmin = user?.role_id === 1;
 
   /* State */
   const [workUnits, setWorkUnits] = useState<PaginatedResponse<WorkUnitWithCount> | null>(null);

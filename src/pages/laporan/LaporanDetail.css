@@ -106,3 +106,9 @@
 .lap-select-option:last-child { border-bottom: none; }
 .lap-select-option:hover { background: var(--bg-hover); color: var(--primary-color); }
 .lap-select-empty { padding: .75rem; font-size: .85rem; color: var(--text-light); text-align: center; font-style: italic; }
+
+/* Disabled state for Super Admin */
+.lap-select-trigger.disabled { background: var(--bg-hover) !important; cursor: not-allowed !important; opacity: 0.7; }
+.lap-searchable-select.disabled label { color: var(--text-light); }
+.ql-container.ql-disabled { background: var(--bg-hover); cursor: not-allowed; }
+.ql-editor[contenteditable="false"] { color: var(--text-light); }

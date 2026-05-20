@@ -7,7 +7,6 @@ import logoKananSrc from '../../assets/icons/laporan/hasil/logo kanan.webp';
 /* ─── Constants ─── */
 const PW = 210, ML = 20, MR = 20, CW = PW - ML - MR; // A4 width, margins, content width (mm)
 const PAGE_BOTTOM = 282; // max y before footer
-const HEADER_END = 38;   // y after header line
 const BODY_START = 44;   // y content starts
 
 /* ─── Types ─── */
@@ -240,7 +239,7 @@ async function drawAttendancePage(doc: jsPDF, data: PdfExportData, logoL: string
     // TANDA TANGAN — paste signature image if available
     if (p.status === 'Hadir') {
       const sigKey = p.nama || emp?.full_name;
-      const sigB64 = sigMap.get(sigKey);
+      const sigB64 = sigKey ? sigMap.get(sigKey) : undefined;
       if (sigB64) {
         try {
           doc.addImage(sigB64, 'PNG', colX[3] + 4, y + 1, colW[3] - 8, rowH - 3);
@@ -430,8 +429,8 @@ export async function generateLaporanPdf(data: PdfExportData): Promise<void> {
     }
   }
   for (const p of data.participants) {
-    if (p.signature_url && p.nama && !sigMap.has(p.nama)) {
-      sigMap.set(p.nama, await loadImg(p.signature_url));
+    if ((p as any).signature_url && p.nama && !sigMap.has(p.nama)) {
+      sigMap.set(p.nama, await loadImg((p as any).signature_url));
     }
   }
   if (data.notulensi) {
@@ -497,7 +496,7 @@ export async function generateLaporanPdf(data: PdfExportData): Promise<void> {
         }
 
         const finalBytes = await finalPdf.save();
-        const blob = new Blob([finalBytes], { type: 'application/pdf' });
+        const blob = new Blob([finalBytes as any], { type: 'application/pdf' });
         downloadBlob(blob, `Laporan_${data.meeting.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
         return;
       } catch (e) {

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { meetingService } from '../../services/meetingService';
-import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../contexts/ToastContext';
 import type { MeetingDetailData, ParticipantWithAttendance } from '../../types/meeting';
 import './MeetingDetail.css';
@@ -19,13 +18,9 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-const ROLE_ADMIN = 2;
-
 export default function MeetingDetail() {
   const { id } = useParams();
-  const { user } = useAuthStore();
   const { showToast } = useToast();
-  const isAdmin = user?.role_id === ROLE_ADMIN;
   const [data, setData] = useState<MeetingDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

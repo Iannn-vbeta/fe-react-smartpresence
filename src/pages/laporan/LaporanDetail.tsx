@@ -5,8 +5,8 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { laporanService } from '../../services/laporanService';
 import { employeeService } from '../../services/employeeService';
-import { generateLaporanPdf } from './generatePdf';
 import type { Employee } from '../../types/employee';
+import { useAuthStore } from '../../store/authStore';
 import './LaporanDetail.css';
 
 /* Types */
@@ -33,7 +33,7 @@ function fixUrl(url: string | null | undefined) {
 }
 
 /* Custom Searchable Select */
-function SearchableSelect({ label, placeholder, value, options, onChange }: { label: string; placeholder: string; value: string; options: { name: string; position: string }[]; onChange: (name: string, position: string) => void }) {
+function SearchableSelect({ label, placeholder, value, options, onChange, disabled }: { label: string; placeholder: string; value: string; options: { name: string; position: string }[]; onChange: (name: string, position: string) => void; disabled?: boolean }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -49,9 +49,9 @@ function SearchableSelect({ label, placeholder, value, options, onChange }: { la
   const filtered = options.filter(o => o.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="lap-searchable-select" ref={wrapperRef}>
+    <div className={`lap-searchable-select ${disabled ? 'disabled' : ''}`} ref={wrapperRef}>
       <label>{label} <span className="required">*</span></label>
-      <div className={`lap-select-trigger ${open ? 'open' : ''}`} onClick={() => { setOpen(!open); setSearch(''); }}>
+      <div className={`lap-select-trigger ${open ? 'open' : ''} ${disabled ? 'disabled' : ''}`} onClick={() => { if (!disabled) { setOpen(!open); setSearch(''); } }}>
         <span className={value ? 'has-value' : 'placeholder'}>{value || placeholder}</span>
         <svg viewBox="0 0 24 24" width="16" height="16">
           <path d="M12 16L6 10H18L12 16Z" fill="#94a3b8" />
@@ -79,6 +79,8 @@ function SearchableSelect({ label, placeholder, value, options, onChange }: { la
 export default function LaporanDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role_id === 1;
   const quillRef = useRef<ReactQuill>(null);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<DetailData | null>(null);
@@ -238,7 +240,7 @@ export default function LaporanDetail() {
                 <div><div className="lap-doc-name">{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>
               <div className="lap-doc-actions">
-                {doc.url && <a href={fixUrl(doc.url)} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><ActionIcon name="unduh" size={16} /></a>}
+                {doc.url && <a href={fixUrl(doc.url) || undefined} target="_blank" rel="noopener noreferrer" className="lap-doc-action-btn download"><ActionIcon name="unduh" size={16} /></a>}
                 <button className="lap-doc-action-btn delete" onClick={() => handleDeleteDoc(doc.id)}><ActionIcon name="hapus" size={16} /></button>
               </div>
             </div>
@@ -258,10 +260,10 @@ export default function LaporanDetail() {
                   (p.nip && p.nip !== '-' && e.nip === p.nip) ||
                   e.full_name?.toLowerCase().trim() === p.nama?.toLowerCase().trim()
                 );
-                const signatureUrl = p.signature_url || emp?.signature_url;
+                const signatureUrl = (p as any).signature_url || emp?.signature_url;
                 return (
                   <tr key={i}><td>{i + 1}</td><td>{p.nama}</td><td>{p.check_in ? fmtTime(p.check_in) : '-'}</td>
-                    <td>{p.status === 'Hadir' ? (signatureUrl ? <img src={fixUrl(signatureUrl)} alt="Tanda Tangan" style={{ height: '40px', objectFit: 'contain' }} /> : <span className="lap-sig-box">{p.nama.split(' ').pop()}</span>) : '-'}</td></tr>
+                    <td>{p.status === 'Hadir' ? (signatureUrl ? <img src={fixUrl(signatureUrl) || undefined} alt="Tanda Tangan" style={{ height: '40px', objectFit: 'contain' }} /> : <span className="lap-sig-box">{p.nama.split(' ').pop()}</span>) : '-'}</td></tr>
                 )
               })}</tbody>
             </table>
@@ -273,7 +275,7 @@ export default function LaporanDetail() {
       <div className="lap-section">
         <div className="lap-section-header"><h2>Notulensi Rapat</h2></div>
         <div className="lap-quill-wrap">
-          <ReactQuill ref={quillRef} theme="snow" value={content} onChange={setContent} modules={quillModules} formats={quillFormats} placeholder="Tulis notulensi rapat di sini..." />
+          <ReactQuill ref={quillRef} theme="snow" value={content} onChange={setContent} modules={quillModules} formats={quillFormats} placeholder="Tulis notulensi rapat di sini..." readOnly={isSuperAdmin} />
         </div>
       </div>
 
@@ -292,9 +294,9 @@ export default function LaporanDetail() {
         {dokumentasiDocs.length === 0 ? <div style={{ color: '#94a3b8', fontSize: '.875rem' }}>Belum ada dokumentasi.</div> :
           dokumentasiDocs.map(doc => (
             <div className="lap-doc-item" key={doc.id}>
-              <div className="lap-doc-info" style={{ cursor: doc.url ? 'pointer' : 'default' }} onClick={() => doc.url && window.open(fixUrl(doc.url), '_blank')}>
+              <div className="lap-doc-info" style={{ cursor: doc.url ? 'pointer' : 'default' }} onClick={() => doc.url && window.open(fixUrl(doc.url) || '', '_blank')}>
                 <div className="lap-doc-icon" style={{ padding: 0, overflow: 'hidden' }}>
-                  {doc.url ? <img src={fixUrl(doc.url)} alt={doc.file_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" /></svg>}
+                  {doc.url ? <img src={fixUrl(doc.url) || undefined} alt={doc.file_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" /></svg>}
                 </div>
                 <div><div className="lap-doc-name" style={{ color: doc.url ? '#1d4ed8' : 'inherit' }}>{doc.file_name}</div><div className="lap-doc-meta">Diunggah pada {fmtDateTime(doc.created_at)}</div></div>
               </div>
@@ -315,6 +317,7 @@ export default function LaporanDetail() {
               value={directorName}
               options={employees.map(e => ({ name: e.full_name, position: e.position?.position || e.employee_type?.employee_type || '' }))}
               onChange={(name, position) => { setDirectorName(name); setDirectorPosition(position); }}
+              disabled={isSuperAdmin}
             />
           </div>
           <div className="lap-ttd-group">
@@ -324,6 +327,7 @@ export default function LaporanDetail() {
               value={notulisName}
               options={employees.map(e => ({ name: e.full_name, position: e.position?.position || e.employee_type?.employee_type || '' }))}
               onChange={(name, position) => { setNotulisName(name); setNotulisPosition(position); }}
+              disabled={isSuperAdmin}
             />
           </div>
         </div>
@@ -332,7 +336,7 @@ export default function LaporanDetail() {
       {/* Bottom bar */}
       <div className="lap-bottom-bar">
         <button className="lap-btn-cancel" onClick={() => navigate('/laporan')}>Batal</button>
-        <button className="lap-btn-save" onClick={handleSave} disabled={saving}>
+        <button className="lap-btn-save" onClick={handleSave} disabled={saving || isSuperAdmin}>
           <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" /></svg>
           {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
@@ -358,6 +362,7 @@ export default function LaporanDetail() {
                 if (!data) return;
                 setExporting(true);
                 try {
+                  const { generateLaporanPdf } = await import('./generatePdf');
                   await generateLaporanPdf({
                     meeting: data.meeting,
                     room: data.room,
@@ -365,7 +370,7 @@ export default function LaporanDetail() {
                     participants,
                     employees,
                     notulensiContent: content,
-                    notulensi: data.notulensi,
+                    notulensi: data.notulensi as any,
                     directorName,
                     directorPosition,
                     notulisName,

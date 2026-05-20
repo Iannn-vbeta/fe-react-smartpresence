@@ -366,7 +366,7 @@ const Login: React.FC = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <img src={logo} alt="Rumah Sakit Citra Husada Logo" className="login-logo" />
+          <img src={logo} alt="Rumah Sakit Citra Husada Logo" className="login-logo" width="140" height="140" />
           <h1 className="login-title">Smart Presence</h1>
           <div className="login-quote-wrapper">
             <p className={`login-quote ${isFading ? 'fade-out' : 'fade-in'}`}>

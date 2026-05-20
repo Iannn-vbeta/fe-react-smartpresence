@@ -2,15 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import ActionIcon from '../../components/ui/ActionIcon';
 import { meetingRoomService } from '../../services/meetingService';
 import type { MeetingRoom, PaginatedResponse } from '../../types/meeting';
-import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../contexts/ToastContext';
 import './RoomManagement.css';
 
 export default function RoomManagement() {
   /* Auth & Toast */
-  const { user } = useAuthStore();
   const { showToast } = useToast();
-  const isSuperAdmin = user?.role_id === 1;
 
   /* State */
   const [rooms, setRooms] = useState<PaginatedResponse<MeetingRoom> | null>(null);

@@ -7,19 +7,6 @@ import type { MeetingRoom, MeetingFormData } from '../../types/meeting';
 import type { Employee, WorkUnit } from '../../types/employee';
 import './MeetingForm.css';
 
-/* Map role string from backend to display-friendly label */
-function getRoleDisplayName(role?: string): string {
-  if (!role) return '';
-  const map: Record<string, string> = {
-    'super_admin': 'Super Admin',
-    'admin': 'Admin',
-    'sekretaris': 'Sekretaris',
-    'manajemen': 'Manajemen',
-    'karyawan': 'Karyawan',
-  };
-  return map[role] || role;
-}
-
 /* helpers */
 function initials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -55,7 +42,7 @@ function ScrollCol({ items, selected, onSelect }: {
   onSelect: (v: string) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const scrollToIdx = useCallback((idx: number, smooth = false) => {
     ref.current?.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'instant' as ScrollBehavior });
