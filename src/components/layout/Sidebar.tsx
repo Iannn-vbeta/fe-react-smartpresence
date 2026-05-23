@@ -16,6 +16,7 @@ import iconRuangRapat from '../../assets/icons/sidebar/Ruang Rapat.webp';
 import iconPengguna from '../../assets/icons/sidebar/Pengguna.webp';
 import iconLaporan from '../../assets/icons/sidebar/Laporan.webp';
 import iconUnitKerja from '../../assets/icons/sidebar/Unit Kerja.webp';
+import iconBackup from '../../assets/icons/sidebar/Backup.svg';
 import iconKeluar from '../../assets/icons/sidebar/Keluar.webp';
 
 /* ─── Role constants ─── */
@@ -73,6 +74,12 @@ const menuItems: MenuItem[] = [
     label: 'Unit Kerja',
     path: '/work-units',
     iconSrc: iconUnitKerja,
+    roles: [ROLE_SUPER_ADMIN],
+  },
+  {
+    label: 'Cadangan',
+    path: '/backups',
+    iconSrc: iconBackup,
     roles: [ROLE_SUPER_ADMIN],
   },
 ];

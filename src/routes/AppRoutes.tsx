@@ -17,6 +17,7 @@ const MeetingDetail = lazy(() => import('../pages/meetings/MeetingDetail'));
 const WorkUnitManagement = lazy(() => import('../pages/work-units/WorkUnitManagement'));
 const LaporanRapat = lazy(() => import('../pages/laporan/LaporanRapat'));
 const LaporanDetail = lazy(() => import('../pages/laporan/LaporanDetail'));
+const BackupManagement = lazy(() => import('../pages/backups/BackupManagement'));
 
 /* ─── Role constants ─── */
 const ROLE_SUPER_ADMIN = 1;
@@ -67,6 +68,7 @@ export default function AppRoutes() {
               <Route path="/rooms" element={<RoomManagement />} />
               <Route path="/users" element={<UserManagement />} />
               <Route path="/work-units" element={<WorkUnitManagement />} />
+              <Route path="/backups" element={<BackupManagement />} />
             </Route>
           </Route>
         </Route>
