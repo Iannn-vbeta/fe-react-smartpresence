@@ -46,3 +46,23 @@
 .laporan-loading-spinner{width:24px;height:24px;border:3px solid var(--border-color);border-top-color:var(--primary-color);border-radius:50%;animation:lrSpin .6s linear infinite}
 @keyframes lrSpin{to{transform:rotate(360deg)}}
 @media(max-width:768px){.laporan-filter-row{grid-template-columns:1fr}.laporan-table{min-width:650px}}
+
+/* Export Modal Styles */
+.lap-modal-overlay{position:fixed;inset:0;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;z-index:1000;animation:ldFade .2s}
+@keyframes ldFade{from{opacity:0}to{opacity:1}}
+.lap-modal{background:var(--bg-card);border-radius:14px;padding:1.75rem;width:100%;max-width:440px;box-shadow:var(--shadow-modal);position:relative}
+.lap-modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;color:var(--text-light)}
+.lap-modal-close:hover{color:var(--text-main)}
+.lap-modal-close svg{width:20px;height:20px;fill:currentColor}
+.lap-modal h3{font-size:1.15rem;font-weight:700;color:var(--primary-color);margin:0 0 .25rem}
+.lap-modal p{color:var(--text-muted);font-size:.85rem;margin:0 0 1.25rem}
+.lap-modal-option{display:flex;align-items:center;gap:.75rem;padding:.85rem 0;border-bottom:1px solid var(--border-color);font-size:.9rem;color:var(--text-main);cursor:pointer}
+.lap-modal-option:last-child{border-bottom:none}
+.lap-modal-option input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary-color)}
+.lap-modal-footer{display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.25rem}
+.lap-export-btn{display:flex;align-items:center;gap:6px;background:var(--success-color);color:#fff;border:none;border-radius:8px;padding:.6rem 1.25rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lap-export-btn:hover{opacity:0.9}
+.lap-export-btn:disabled{opacity:0.5;cursor:not-allowed}
+.lap-export-btn svg{width:18px;height:18px;fill:currentColor}
+.lap-btn-cancel{background:none;border:1px solid var(--border-color);color:var(--text-muted);padding:.6rem 1.25rem;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+.lap-btn-cancel:hover{background:var(--bg-hover);color:var(--text-main)}

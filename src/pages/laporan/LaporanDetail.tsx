@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import ActionIcon from '../../components/ui/ActionIcon';
 import { useParams, useNavigate } from 'react-router-dom';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import { Editor } from '@tinymce/tinymce-react';
 import { laporanService } from '../../services/laporanService';
 import { employeeService } from '../../services/employeeService';
 import type { Employee } from '../../types/employee';
 import { useAuthStore } from '../../store/authStore';
+import { useLogo } from '../../contexts/LogoContext';
 import './LaporanDetail.css';
 
 /* Types */
@@ -81,7 +81,7 @@ export default function LaporanDetail() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role_id === 1;
-  const quillRef = useRef<ReactQuill>(null);
+  const editorRef = useRef<any>(null);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<DetailData | null>(null);
   const [participants, setParticipants] = useState<ExportPeserta[]>([]);
@@ -95,7 +95,10 @@ export default function LaporanDetail() {
   const [showExport, setShowExport] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportSections, setExportSections] = useState({ info: true, undangan: true, kehadiran: true, notulensi: true, dokumentasi: true });
+  const [useStamp, setUseStamp] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
+
+  const { logoKiriPdf, logoKananPdf, stampImage } = useLogo();
 
   const fetchData = useCallback(async () => {
     if (!id) return;
@@ -119,33 +122,6 @@ export default function LaporanDetail() {
     employeeService.list({ per_page: 1000 }).then(res => setEmployees(res.data.data || [])).catch(() => { });
   }, []);
 
-  /* Quill image upload handler */
-  const imageHandler = useCallback(() => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      try {
-        const res = await laporanService.uploadMinutesImage(file);
-        const quill = quillRef.current?.getEditor();
-        if (quill) { const range = quill.getSelection(true); quill.insertEmbed(range.index, 'image', fixUrl(res.data.url)); quill.setSelection(range.index + 1, 0); }
-      } catch { alert('Gagal mengunggah gambar'); }
-    };
-  }, []);
-
-  const quillModules = useMemo(() => ({
-    toolbar: {
-      container: [[{ header: [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image'], ['blockquote', 'code-block'], ['clean']],
-      handlers: { image: imageHandler },
-    },
-    clipboard: { matchVisual: false },
-  }), [imageHandler]);
-
-  const quillFormats = ['header', 'bold', 'italic', 'underline', 'strike', 'color', 'background', 'list', 'align', 'link', 'image', 'blockquote', 'code-block'];
-
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
   const handleSave = async () => {
@@ -168,6 +144,67 @@ export default function LaporanDetail() {
     if (!id || !confirm('Hapus dokumen ini?')) return;
     try { await laporanService.deleteDocument(Number(id), docId); showToast('Dokumen berhasil dihapus'); fetchData(); }
     catch { showToast('Gagal menghapus dokumen'); }
+  };
+
+  const insertTableTemplate = (templateType: number) => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+
+    let tableHtml = '';
+    if (templateType === 1) {
+      tableHtml = `
+        <table style="border-collapse: collapse; width: 100%; border: 1px solid #000; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #000; padding: 8px; width: 50px; text-align: center; font-weight: bold; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">NO</th>
+              <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">PEMBAHASAN</th>
+              <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">PENYELESAIAN</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border: 1px solid #000; padding: 8px; text-align: center; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">1</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 8px; text-align: center; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">2</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    } else {
+      tableHtml = `
+        <table style="border-collapse: collapse; width: 100%; border: 1px solid #000; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #000; padding: 8px; width: 50px; text-align: center; font-weight: bold; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">NO</th>
+              <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">PEMBAHASAN</th>
+              <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">PIC</th>
+              <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">PENYELESAIAN</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border: 1px solid #000; padding: 8px; text-align: center; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">1</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 8px; text-align: center; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">2</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+              <td style="border: 1px solid #000; padding: 8px; vertical-align: top; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+
+    editorRef.current.insertContent(tableHtml);
   };
 
   if (loading) return <div className="lap-detail-loading"><div className="lap-detail-spinner" />Memuat detail laporan...</div>;
@@ -271,11 +308,120 @@ export default function LaporanDetail() {
         }
       </div>
 
-      {/* Notulensi Rapat - Quill Editor */}
+      {/* Notulensi Rapat - TinyMCE Editor */}
       <div className="lap-section">
         <div className="lap-section-header"><h2>Notulensi Rapat</h2></div>
+        {!isSuperAdmin && (
+          <div className="lap-editor-tools">
+            <div className="lap-tools-group">
+              <span className="lap-tools-label">Template Tabel:</span>
+              <button type="button" className="lap-tool-btn template-btn" onMouseDown={e => { e.preventDefault(); insertTableTemplate(1); }}>
+                Template 1 (3 Kolom)
+              </button>
+              <button type="button" className="lap-tool-btn template-btn" onMouseDown={e => { e.preventDefault(); insertTableTemplate(2); }}>
+                Template 2 (4 Kolom)
+              </button>
+            </div>
+          </div>
+        )}
         <div className="lap-quill-wrap">
-          <ReactQuill ref={quillRef} theme="snow" value={content} onChange={setContent} modules={quillModules} formats={quillFormats} placeholder="Tulis notulensi rapat di sini..." readOnly={isSuperAdmin} />
+          <Editor
+            tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"
+            value={content}
+            onEditorChange={(newVal) => setContent(newVal)}
+            onInit={(_, editor) => {
+              editorRef.current = editor;
+            }}
+            disabled={isSuperAdmin}
+            init={{
+              height: 500,
+              menubar: 'edit insert format table',
+              plugins: ['table', 'lists', 'link', 'image', 'code', 'wordcount'],
+              toolbar: 'undo redo | fontfamily fontsize jarakenter | bold italic underline | alignleft aligncenter alignright alignjustify | bullist | table | removeformat',
+              font_family_formats: 'Arial=arial,helvetica,sans-serif; Times New Roman=times new roman,times,serif; Georgia=georgia,palatino,serif; Inter=inter,sans-serif; Courier New=courier new,courier,monospace',
+              font_size_formats: '10px 12px 14px 16px 18px 20px 24px 32px',
+              branding: false,
+              promotion: false,
+              statusbar: true,
+              formats: {
+                custom_margin: { selector: 'p,h1,h2,h3,h4,h5,h6,div,li,td,th', styles: { marginBottom: '%value' } }
+              },
+              setup: (editor: any) => {
+                const spacingOptions = ['0', '0.5', '1', '1.5', '2', '2.5', '3'];
+
+                editor.ui.registry.addMenuButton('jarakenter', {
+                  text: 'Jarak Enter',
+                  tooltip: 'Atur Jarak Paragraf (Enter)',
+                  fetch: (callback: any) => {
+                    const items = spacingOptions.map((val) => {
+                      const isMatched = editor.formatter.match('custom_margin', { value: val + 'em' }) ||
+                                        (val === '0' && (editor.formatter.match('custom_margin', { value: '0px' }) || editor.formatter.match('custom_margin', { value: '0' })));
+                      return {
+                        type: 'togglemenuitem',
+                        text: val,
+                        active: isMatched,
+                        onAction: () => {
+                          editor.formatter.apply('custom_margin', { value: val + 'em' });
+                        }
+                      };
+                    });
+                    
+                    if (!items.some(item => item.active)) {
+                      const defaultItem = items.find(item => item.text === '1');
+                      if (defaultItem) defaultItem.active = true;
+                    }
+
+                    callback(items);
+                  }
+                });
+              },
+              images_upload_handler: async (blobInfo: any) => {
+                const file = new File([blobInfo.blob()], blobInfo.filename(), { type: blobInfo.blob().type });
+                try {
+                  const res = await laporanService.uploadMinutesImage(file);
+                  return fixUrl(res.data.url) || '';
+                } catch (e) {
+                  throw new Error('Gagal mengunggah gambar');
+                }
+              },
+              content_style: `
+                body {
+                  font-family: "Times New Roman", Times, serif;
+                  font-size: 12pt;
+                  color: #000;
+                  line-height: 1.6;
+                  background-color: #fff;
+                }
+                p { margin-top: 0; margin-bottom: 1em; }
+                ul {
+                  list-style-type: none;
+                  padding-left: 15px;
+                  margin-top: 4px;
+                  margin-bottom: 4px;
+                }
+                ul li {
+                  position: relative;
+                }
+                ul li::before {
+                  content: "- ";
+                  position: absolute;
+                  left: -12px;
+                  top: 0;
+                }
+                table {
+                  border-collapse: collapse;
+                  width: 100%;
+                  border: 1px solid #000;
+                }
+                table td, table th {
+                  border: 1px solid #000;
+                  padding: 8px;
+                  min-width: 50px;
+                  vertical-align: top;
+                }
+              `
+            }}
+          />
         </div>
       </div>
 
@@ -356,6 +502,14 @@ export default function LaporanDetail() {
                 </label>
               ))}
             </div>
+
+            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+              <label className="lap-modal-option">
+                <input type="checkbox" checked={useStamp} onChange={() => setUseStamp(!useStamp)} />
+                Tambahkan Stempel pada TTD Penanggung Jawab
+              </label>
+            </div>
+
             <div className="lap-modal-footer">
               <button className="lap-btn-cancel" onClick={() => setShowExport(false)}>Batal</button>
               <button className="lap-export-btn" disabled={exporting} onClick={async () => {
@@ -364,6 +518,8 @@ export default function LaporanDetail() {
                 try {
                   const { generateLaporanPdf } = await import('./generatePdf');
                   await generateLaporanPdf({
+                    logoLeftUrl: logoKiriPdf,
+                    logoRightUrl: logoKananPdf,
                     meeting: data.meeting,
                     room: data.room,
                     attendance_summary: data.attendance_summary,
@@ -377,6 +533,8 @@ export default function LaporanDetail() {
                     notulisPosition,
                     documents: data.documents,
                     exportSections,
+                    useStamp,
+                    stampImage,
                   });
                   showToast('PDF berhasil diunduh!');
                 } catch (e) {

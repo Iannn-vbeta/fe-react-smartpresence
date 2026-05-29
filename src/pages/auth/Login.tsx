@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { useAuthStore } from '../../store/authStore';
+import { useLogo } from '../../contexts/LogoContext';
 import './Login.css';
 import logo from '../../assets/images/logo.png';
 import userIcon from '../../assets/icons/user.webp';
@@ -322,6 +323,7 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
   const auth = useAuthStore();
+  const { logoKiriSidebar } = useLogo();
 
   // Redirect if already authenticated
   if (auth.isAuthenticated) {
@@ -366,7 +368,7 @@ const Login: React.FC = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <img src={logo} alt="Rumah Sakit Citra Husada Logo" className="login-logo" width="140" height="140" />
+          <img src={logoKiriSidebar || logo} alt="Rumah Sakit Citra Husada Logo" className="login-logo" width="140" height="140" />
           <h1 className="login-title">Smart Presence</h1>
           <div className="login-quote-wrapper">
             <p className={`login-quote ${isFading ? 'fade-out' : 'fade-in'}`}>

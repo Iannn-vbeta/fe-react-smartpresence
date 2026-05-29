@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { authService } from '../../services/authService';
 import { useTheme } from '../../hooks/useTheme';
+import { useLogo } from '../../contexts/LogoContext';
 import './Sidebar.css';
 
 /* ─── Logo ─── */
@@ -31,7 +32,8 @@ const ROLE_SEKRETARIS = 3;
 interface MenuItem {
   label: string;
   path: string;
-  iconSrc: string;
+  iconSrc?: string;
+  iconNode?: React.ReactNode;
   roles?: number[]; // undefined = visible to all
 }
 
@@ -82,6 +84,17 @@ const menuItems: MenuItem[] = [
     iconSrc: iconBackup,
     roles: [ROLE_SUPER_ADMIN],
   },
+  {
+    label: 'Ubah Logo',
+    path: '/ubah-logo',
+    iconNode: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="sidebar-menu-icon" style={{ width: '22px', height: '22px' }}>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+      </svg>
+    ),
+    roles: [ROLE_SUPER_ADMIN],
+  },
 ];
 
 interface SidebarProps {
@@ -94,6 +107,7 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+  const { logoKiriSidebar } = useLogo();
 
   const userRoleId = user?.role_id;
 
@@ -140,7 +154,7 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
         {/* Brand */}
         <div className="sidebar-brand">
           <div className="sidebar-brand-logo">
-            <img src={sidebarLogo} alt="Logo RS Citra Husada" width="57" height="57" />
+            <img src={logoKiriSidebar || sidebarLogo} alt="Logo RS Citra Husada" width="57" height="57" />
           </div>
           <div className="sidebar-brand-text">
             <h2>RS CITRA HUSADA</h2>
@@ -158,7 +172,11 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
               onClick={() => mobileOpen && onToggleMobile()}
             >
               <span className="sidebar-nav-icon">
-                <img src={item.iconSrc} alt={item.label} className="sidebar-menu-icon" />
+                {item.iconNode ? (
+                  item.iconNode
+                ) : (
+                  <img src={item.iconSrc} alt={item.label} className="sidebar-menu-icon" />
+                )}
               </span>
               <span>{item.label}</span>
             </NavLink>

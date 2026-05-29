@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import ActionIcon from '../../components/ui/ActionIcon';
 import { useNavigate } from 'react-router-dom';
 import { laporanService } from '../../services/laporanService';
+import { employeeService } from '../../services/employeeService';
+import { useLogo } from '../../contexts/LogoContext';
 import './LaporanRapat.css';
 
 interface Room { id: number; name: string; }
@@ -27,6 +29,14 @@ export default function LaporanRapat() {
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
 
+  const { logoKiriPdf, logoKananPdf, stampImage } = useLogo();
+  const [showExport, setShowExport] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportId, setExportId] = useState<number | null>(null);
+  const [exportSections, setExportSections] = useState({ info: true, undangan: true, kehadiran: true, notulensi: true, dokumentasi: true });
+  const [useStamp, setUseStamp] = useState(false);
+  const [employees, setEmployees] = useState<any[]>([]);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -43,6 +53,9 @@ export default function LaporanRapat() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => { const t = setTimeout(() => { setSearch(searchInput); setPage(1); }, 400); return () => clearTimeout(t); }, [searchInput]);
+  useEffect(() => {
+    employeeService.list({ per_page: 1000 }).then(res => setEmployees(res.data.data || [])).catch(() => { });
+  }, []);
 
   return (
     <div className="laporan-page">
@@ -109,7 +122,7 @@ export default function LaporanRapat() {
                         <button className="laporan-action-btn view" title="Lihat Detail" onClick={() => navigate(`/laporan/${item.id}`)}>
                           <ActionIcon name="mata" size={18} />
                         </button>
-                        <button className="laporan-action-btn download" title="Download" onClick={() => navigate(`/laporan/${item.id}`)}>
+                        <button className="laporan-action-btn download" title="Download" onClick={() => { setExportId(item.id); setShowExport(true); }}>
                           <ActionIcon name="unduh" size={18} />
                         </button>
                       </div>
@@ -129,6 +142,77 @@ export default function LaporanRapat() {
             </div>
           )}
         </>
+      )}
+
+      {/* Export Modal */}
+      {showExport && (
+        <div className="lap-modal-overlay" onClick={() => setShowExport(false)}>
+          <div className="lap-modal" onClick={e => e.stopPropagation()}>
+            <button className="lap-modal-close" onClick={() => setShowExport(false)}><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></button>
+            <h3>Ekspor Laporan ke PDF</h3>
+            <p>Pilih dokumen yang ingin disertakan dalam file PDF</p>
+            <div>
+              {([['info', 'Informasi Rapat'], ['undangan', 'Undangan'], ['kehadiran', 'Daftar Kehadiran'], ['notulensi', 'Notulensi Rapat'], ['dokumentasi', 'Dokumentasi']] as [keyof typeof exportSections, string][]).map(([key, label]) => (
+                <label className="lap-modal-option" key={key}>
+                  <input type="checkbox" checked={exportSections[key]} onChange={() => setExportSections(prev => ({ ...prev, [key]: !prev[key] }))} />{label}
+                </label>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+              <label className="lap-modal-option">
+                <input type="checkbox" checked={useStamp} onChange={() => setUseStamp(!useStamp)} />
+                Tambahkan Stempel pada TTD Penanggung Jawab
+              </label>
+            </div>
+
+            <div className="lap-modal-footer">
+              <button className="lap-btn-cancel" onClick={() => setShowExport(false)}>Batal</button>
+              <button className="lap-export-btn" disabled={exporting} onClick={async () => {
+                if (!exportId) return;
+                setExporting(true);
+                try {
+                  const [detailRes, exportRes] = await Promise.all([
+                    laporanService.getDetail(exportId),
+                    laporanService.getExport(exportId)
+                  ]);
+                  const data = detailRes.data.data;
+                  const participants = exportRes.data.data.peserta || [];
+                  
+                  const { generateLaporanPdf } = await import('./generatePdf');
+                  await generateLaporanPdf({
+                    logoLeftUrl: logoKiriPdf,
+                    logoRightUrl: logoKananPdf,
+                    meeting: data.meeting,
+                    room: data.room,
+                    attendance_summary: data.attendance_summary,
+                    participants,
+                    employees,
+                    notulensiContent: data.notulensi?.content || '',
+                    notulensi: data.notulensi,
+                    directorName: data.notulensi?.director_name || '',
+                    directorPosition: data.notulensi?.director_position || '',
+                    notulisName: data.notulensi?.notulis_name || '',
+                    notulisPosition: data.notulensi?.notulis_position || '',
+                    documents: data.documents,
+                    exportSections,
+                    useStamp,
+                    stampImage,
+                  });
+                } catch (e) {
+                  console.error('PDF export error:', e);
+                  alert('Gagal mengekspor PDF');
+                } finally {
+                  setExporting(false);
+                  setShowExport(false);
+                }
+              }}>
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" /></svg>
+                {exporting ? 'Mengekspor...' : 'Ekspor PDF'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
