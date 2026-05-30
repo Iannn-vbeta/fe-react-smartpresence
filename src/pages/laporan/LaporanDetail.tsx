@@ -339,7 +339,7 @@ export default function LaporanDetail() {
               plugins: ['table', 'lists', 'link', 'image', 'code', 'wordcount'],
               toolbar: 'undo redo | fontfamily fontsize jarakenter | bold italic underline | alignleft aligncenter alignright alignjustify | bullist | table | removeformat',
               font_family_formats: 'Arial=arial,helvetica,sans-serif; Times New Roman=times new roman,times,serif; Georgia=georgia,palatino,serif; Inter=inter,sans-serif; Courier New=courier new,courier,monospace',
-              font_size_formats: '10px 12px 14px 16px 18px 20px 24px 32px',
+              font_size_formats: '8pt 10pt 11pt 12pt 14pt 16pt 18pt 24pt 36pt',
               branding: false,
               promotion: false,
               statusbar: true,

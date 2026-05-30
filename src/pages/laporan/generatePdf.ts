@@ -152,11 +152,11 @@ function drawHeader(doc: jsPDF, logoL: string | null, logoR: string | null, isLa
 
   const cx = pw / 2;
   doc.setFont('times', 'bold'); doc.setFontSize(14);
-  doc.text('RUMAH SAKIT CITRA HUSADA JEMBER', cx, 14, { align: 'center' });
-  doc.setFont('times', 'normal'); doc.setFontSize(9);
-  doc.text('Jl. Teratai No. 22 Jember', cx, 19, { align: 'center' });
-  doc.text('Telp. (0331) 486200 Fax. (0331) 427088', cx, 23, { align: 'center' });
-  doc.text('Website : www.rscitrahusada.com  Email : rs_citrahusada@yahoo.co.id', cx, 27, { align: 'center' });
+  doc.text('R U M A H  S A K I T  CITRA HUSADA', cx, 14, { align: 'center' });
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
+  doc.text('Jl. Teratai No. 22 J e m b e r', cx, 20, { align: 'center' });
+  doc.text('Telp. (0331) 486200 Fax. (0331) 427088', cx, 25, { align: 'center' });
+  doc.text('Website : www.rscitrahusada.com  Email : rs_citrahusada@yahoo.co.id', cx, 30, { align: 'center' });
   doc.setDrawColor(0); doc.setLineWidth(0.6);
   doc.line(ML, 34, pw - MR, 34);
   doc.setLineWidth(0.15);
@@ -184,7 +184,7 @@ function ensureSpace(doc: jsPDF, y: number, need: number, logoL: string | null, 
 function drawInfoPage(doc: jsPDF, data: PdfExportData, logoL: string | null, logoR: string | null) {
   drawHeader(doc, logoL, logoR);
   let y = 50;
-  doc.setFont('times', 'bold'); doc.setFontSize(13);
+  doc.setFont('times', 'bold'); doc.setFontSize(12);
   doc.text('Informasi Rapat', PW / 2, y, { align: 'center' });
   doc.setLineWidth(0.4);
   const tw = doc.getTextWidth('Informasi Rapat');
@@ -201,7 +201,7 @@ function drawInfoPage(doc: jsPDF, data: PdfExportData, logoL: string | null, log
     ['Jumlah Karyawan Tidak Hadir', String(data.attendance_summary.tidak_hadir)],
   ];
 
-  doc.setFont('times', 'normal'); doc.setFontSize(11);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
   for (const [label, value] of rows) {
     doc.text(label, ML + 10, y);
     doc.text(':', ML + 80, y);
@@ -215,7 +215,7 @@ async function drawAttendancePage(doc: jsPDF, data: PdfExportData, logoL: string
   let y = newPage(doc, logoL, logoR);
 
   // Sub-header info
-  doc.setFont('times', 'normal'); doc.setFontSize(10);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
   const infoRows = [
     ['Hari/Tgl', fmtDateLong(data.meeting.start_time)],
     ['Acara', data.meeting.title],
@@ -237,7 +237,7 @@ async function drawAttendancePage(doc: jsPDF, data: PdfExportData, logoL: string
   const headers = ['NO', 'NAMA', 'JABATAN', 'TANDA\nTANGAN'];
   const headerH = 12;
 
-  doc.setFont('times', 'bold'); doc.setFontSize(9);
+  doc.setFont('times', 'bold'); doc.setFontSize(12);
   doc.setDrawColor(0); doc.setLineWidth(0.3);
 
   function drawTableHeader(atY: number) {
@@ -256,7 +256,7 @@ async function drawAttendancePage(doc: jsPDF, data: PdfExportData, logoL: string
   y += headerH;
 
   // Table rows
-  doc.setFont('times', 'normal'); doc.setFontSize(9);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
   const rowH = 16; // height per row to fit signature
 
   for (let i = 0; i < data.participants.length; i++) {
@@ -320,7 +320,7 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
   console.log(`[PDF DEBUG] Landscape page => Width: ${pageW.toFixed(2)}mm, Height: ${pageH.toFixed(2)}mm (A4 landscape seharusnya: 297x210)`);
 
   // Title
-  doc.setFont('times', 'bold'); doc.setFontSize(13);
+  doc.setFont('times', 'bold'); doc.setFontSize(12);
   doc.text('NOTULEN RAPAT', pw / 2, y, { align: 'center' });
   const tw2 = doc.getTextWidth('NOTULEN RAPAT');
   doc.setLineWidth(0.4);
@@ -328,7 +328,7 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
   y += 10;
 
   // Info sub-header
-  doc.setFont('times', 'normal'); doc.setFontSize(10);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
   const notInfo = [
     ['Hari/Tanggal', fmtDateLong(data.meeting.start_time)],
     ['Waktu', `${fmtTime(data.meeting.start_time)} WIB s/d selesai`],
@@ -418,7 +418,7 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
       }
     } catch {
       document.body.removeChild(container);
-      doc.setFont('times', 'italic'); doc.setFontSize(10);
+      doc.setFont('times', 'italic'); doc.setFontSize(12);
       doc.text('(Tidak dapat merender notulensi)', ML, y);
       y += 8;
     }
@@ -430,7 +430,7 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
   y += 10;
 
   // Date line
-  doc.setFont('times', 'normal'); doc.setFontSize(10);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
   doc.text(fmtJember(data.meeting.start_time), pw - MR, y, { align: 'right' });
   y += 10;
 
@@ -438,7 +438,7 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
   const leftX = pw * 0.25;
   const rightX = pw * 0.75;
 
-  doc.setFont('times', 'normal'); doc.setFontSize(10);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
   doc.text('Mengetahui', leftX, y, { align: 'center' });
   doc.text('Notulis', rightX, y, { align: 'center' });
   y += 4;
@@ -489,7 +489,7 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
   y += 5;
 
   // Positions
-  doc.setFont('times', 'normal'); doc.setFontSize(9);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
   doc.text(data.directorPosition || '', leftX, y, { align: 'center' });
   doc.text(data.notulisPosition || '', rightX, y, { align: 'center' });
 }
