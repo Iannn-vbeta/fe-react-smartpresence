@@ -5,29 +5,29 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   build: {
-    minify: 'esbuild',
-    cssMinify: 'esbuild',
+    minify: "esbuild",
+    cssMinify: "esbuild",
     cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          quill: ['react-quill-new'],
-        }
-      }
-    }
+          vendor: ["react", "react-dom", "react-router-dom"],
+          quill: ["react-quill-new"],
+        },
+      },
+    },
   },
   server: {
     host: true,
     port: 3000,
     allowedHosts: true,
     proxy: {
-      '/storage': {
-        target: 'http://localhost:8000',
+      "/storage": {
+        target: "http://nginx_server",
         changeOrigin: true,
       },
-      '/api': {
-        target: 'http://localhost:8000',
+      "/api": {
+        target: "http://nginx_server",
         changeOrigin: true,
       },
     },
