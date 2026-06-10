@@ -56,19 +56,14 @@ function fmtJember(d: string) {
 }
 
 function proxyUrl(url: string): string {
-  // Convert http://localhost:8000/... → /...
   try {
     const u = new URL(url);
-    if (u.hostname === 'localhost' && u.port === '8000') {
+    if (u.port === '7104' || (u.hostname === 'localhost' && u.port === '8000')) {
       return u.pathname;
     }
-  } catch { /* ignore */ }
-
-  try {
-    const u = new URL(url, window.location.origin);
-    if (u.pathname.startsWith('/storage') || u.pathname.startsWith('/api')) return u.pathname;
-  } catch { /* ignore */ }
-
+  } catch {
+    // Relative paths
+  }
   return url;
 }
 
@@ -361,7 +356,10 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
         .pdf-export-container table td, .pdf-export-container table th { border: 1px solid #000; padding: 8px; vertical-align: top; }
       </style>
     `;
-    container.innerHTML = styleString + data.notulensiContent;
+    const sanitizedContent = data.notulensiContent
+      .replaceAll('http://localhost:7104/smartpresence', '/smartpresence')
+      .replaceAll('http://localhost:8000/storage', '/storage');
+    container.innerHTML = styleString + sanitizedContent;
     document.body.appendChild(container);
 
     try {

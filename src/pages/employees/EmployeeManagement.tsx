@@ -16,8 +16,16 @@ import "./EmployeeManagement.css";
 
 function fixUrl(url: string | null | undefined) {
   if (!url) return url;
-  if (url.startsWith('data:')) return url; // Biarkan base64 dari file upload lokal
-  return url.replace('http://localhost:8000', '');
+  if (url.startsWith('data:')) return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.port === '7104' || (parsed.hostname === 'localhost' && parsed.port === '8000')) {
+      return parsed.pathname;
+    }
+  } catch {
+    // Relative paths
+  }
+  return url;
 }
 
 export default function EmployeeManagement() {

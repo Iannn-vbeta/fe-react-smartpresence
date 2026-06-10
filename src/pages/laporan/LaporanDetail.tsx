@@ -28,8 +28,23 @@ function statusLabel(s: string) { return { menunggu: 'Menunggu', berlangsung: 'B
 function fmtDateTime(d: string) { const dt = new Date(d); return dt.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
 function fixUrl(url: string | null | undefined) {
   if (!url) return url;
-  if (url.startsWith('data:')) return url; // Biarkan base64 dari file upload lokal
-  return url.replaceAll('http://localhost:8000', '');
+  if (url.startsWith('data:')) return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.port === '7104' || (parsed.hostname === 'localhost' && parsed.port === '8000')) {
+      return parsed.pathname;
+    }
+  } catch {
+    // Relative paths
+  }
+  return url;
+}
+
+function sanitizeHtml(html: string | null | undefined) {
+  if (!html) return '';
+  return html
+    .replaceAll('http://localhost:7104/smartpresence', '/smartpresence')
+    .replaceAll('http://localhost:8000/storage', '/storage');
 }
 
 /* Custom Searchable Select */
@@ -107,7 +122,7 @@ export default function LaporanDetail() {
       const [detailRes, exportRes] = await Promise.all([laporanService.getDetail(Number(id)), laporanService.getExport(Number(id))]);
       const d: DetailData = detailRes.data.data;
       setData(d);
-      setContent(d.notulensi?.content ? fixUrl(d.notulensi.content) || '' : '');
+      setContent(d.notulensi?.content ? sanitizeHtml(d.notulensi.content) : '');
       setDirectorName(d.notulensi?.director_name || '');
       setDirectorPosition(d.notulensi?.director_position || '');
       setNotulisName(d.notulensi?.notulis_name || '');
@@ -328,8 +343,8 @@ export default function LaporanDetail() {
           <Editor
             tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"
             value={content}
-            onEditorChange={(newVal) => setContent(newVal)}
-            onInit={(_, editor) => {
+            onEditorChange={(newVal: string) => setContent(newVal)}
+            onInit={(_: any, editor: any) => {
               editorRef.current = editor;
             }}
             disabled={isSuperAdmin}

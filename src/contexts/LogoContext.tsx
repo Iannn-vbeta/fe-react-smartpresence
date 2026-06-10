@@ -12,6 +12,20 @@ interface LogoContextType {
 
 const LogoContext = createContext<LogoContextType | undefined>(undefined);
 
+function fixUrl(url: string | null | undefined) {
+  if (!url) return url;
+  if (url.startsWith('data:')) return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.port === '7104' || (parsed.hostname === 'localhost' && parsed.port === '8000')) {
+      return parsed.pathname;
+    }
+  } catch {
+    // Relative paths
+  }
+  return url;
+}
+
 export const LogoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [logoKiriSidebar, setLogoKiriSidebar] = useState<string | null>(null);
   const [logoKiriPdf, setLogoKiriPdf] = useState<string | null>(null);
@@ -24,10 +38,10 @@ export const LogoProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.get('/system-settings/logos');
       const data = response.data.data;
       if (data) {
-        setLogoKiriSidebar(data.logo_kiri_sidebar || null);
-        setLogoKiriPdf(data.logo_kiri_pdf || null);
-        setLogoKananPdf(data.logo_kanan_pdf || null);
-        setStampImage(data.stamp_image || null);
+        setLogoKiriSidebar(fixUrl(data.logo_kiri_sidebar) || null);
+        setLogoKiriPdf(fixUrl(data.logo_kiri_pdf) || null);
+        setLogoKananPdf(fixUrl(data.logo_kanan_pdf) || null);
+        setStampImage(fixUrl(data.stamp_image) || null);
       }
     } catch (error) {
       console.error('Failed to fetch logos:', error);

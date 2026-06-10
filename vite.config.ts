@@ -30,6 +30,10 @@ export default defineConfig({
         target: "http://nginx_server",
         changeOrigin: true,
       },
+      "/smartpresence": {
+        target: "http://minio:9000",
+        changeOrigin: true,
+      },
     },
   },
 });
