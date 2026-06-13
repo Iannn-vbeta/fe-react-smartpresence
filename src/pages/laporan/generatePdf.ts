@@ -58,7 +58,7 @@ function fmtJember(d: string) {
 function proxyUrl(url: string): string {
   try {
     const u = new URL(url);
-    if (u.port === '7104' || (u.hostname === 'localhost' && u.port === '8000')) {
+    if (u.port === '7104' || u.port === '7200' || u.port === '9090' || (u.hostname === 'localhost' && u.port === '8000')) {
       return u.pathname;
     }
   } catch {
@@ -357,8 +357,8 @@ async function drawNotulenPages(doc: jsPDF, data: PdfExportData, logoL: string |
       </style>
     `;
     const sanitizedContent = data.notulensiContent
-      .replaceAll('http://localhost:7104/smartpresence', '/smartpresence')
-      .replaceAll('http://localhost:8000/storage', '/storage');
+      .replaceAll('http://localhost:9090/smsp', '/smsp')
+      .replaceAll('http://localhost:7200/storage', '/storage');
     container.innerHTML = styleString + sanitizedContent;
     document.body.appendChild(container);
 
