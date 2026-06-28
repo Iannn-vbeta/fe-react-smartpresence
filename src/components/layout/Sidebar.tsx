@@ -167,7 +167,7 @@ export default function Sidebar({ mobileOpen, onToggleMobile }: SidebarProps) {
             <img src={logoKiriSidebar || sidebarLogo} alt="Logo RS Citra Husada" width="57" height="57" />
           </div>
           <div className="sidebar-brand-text">
-            <h2>RS CITRA HUSADA</h2>
+            <h2>RSCH</h2>
             <p>Smart Presence</p>
           </div>
         </div>

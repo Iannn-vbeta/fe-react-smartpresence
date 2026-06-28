@@ -141,8 +141,8 @@ export default function MeetingForm() {
   /* form */
   const [title, setTitle] = useState('');
   const [organizer, setOrganizer] = useState(() => {
-    // Auto-fill with logged-in user's username for new meetings
-    if (!id) return user?.username || '';
+    // Auto-fill with logged-in user's name for new meetings
+    if (!id) return user?.name || '';
     return '';
   });
   const [roomId, setRoomId] = useState<number | ''>('');

@@ -41,7 +41,7 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   /* Form State */
-  const [formData, setFormData] = useState<UserFormData>({ username: '', password: '', role_id: '' });
+  const [formData, setFormData] = useState<UserFormData>({ name: '', nip: '', password: '', role_id: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
   const [saving, setSaving] = useState(false);
 
@@ -79,14 +79,14 @@ export default function UserManagement() {
   /* Modal Handlers */
   const openAddModal = () => {
     setSelectedUser(null);
-    setFormData({ username: '', password: '', role_id: '' });
+    setFormData({ name: '', nip: '', password: '', role_id: '' });
     setFormErrors({});
     setShowFormModal(true);
   };
 
   const openEditModal = (user: User) => {
     setSelectedUser(user);
-    setFormData({ username: user.username, password: '', role_id: user.role_id });
+    setFormData({ name: user.name, nip: user.nip, password: '', role_id: user.role_id });
     setFormErrors({});
     setShowFormModal(true);
   };
@@ -170,7 +170,7 @@ export default function UserManagement() {
             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
             <input
               type="text"
-              placeholder="Cari username..."
+              placeholder="Cari nama atau NIP..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
@@ -199,7 +199,7 @@ export default function UserManagement() {
             <table className="user-table">
               <thead>
                 <tr>
-                  <th>Username</th>
+                  <th>Nama / NIP</th>
                   <th>Role</th>
                   <th>Tanggal Dibuat</th>
                   <th>Aksi</th>
@@ -215,7 +215,10 @@ export default function UserManagement() {
                           <div className="user-avatar">
                             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                           </div>
-                          {u.username}
+                          <div>
+                            <div style={{fontWeight: 500}}>{u.name}</div>
+                            <div style={{fontSize: '0.85em', color: 'var(--text-muted)'}}>{u.nip}</div>
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -289,15 +292,27 @@ export default function UserManagement() {
             <form onSubmit={handleFormSubmit}>
               <div className="user-modal-body">
                 <div className="modal-field">
-                  <label>Username <span className="required">*</span></label>
+                  <label>Nama <span className="required">*</span></label>
                   <input
                     type="text"
-                    placeholder="Contoh: admin123"
-                    value={formData.username}
-                    onChange={e => setFormData({ ...formData, username: e.target.value })}
+                    placeholder="Contoh: Budi Santoso"
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
-                  {formErrors.username && <div className="modal-field-error">{formErrors.username[0]}</div>}
+                  {formErrors.name && <div className="modal-field-error">{formErrors.name[0]}</div>}
+                </div>
+
+                <div className="modal-field">
+                  <label>NIP <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: 198001012010011001"
+                    value={formData.nip}
+                    onChange={e => setFormData({ ...formData, nip: e.target.value })}
+                    required
+                  />
+                  {formErrors.nip && <div className="modal-field-error">{formErrors.nip[0]}</div>}
                 </div>
 
                 <div className="modal-field">
@@ -352,7 +367,7 @@ export default function UserManagement() {
         <div className="modal-overlay" onClick={() => !saving && setShowDeleteModal(false)}>
           <div className="delete-modal-box" onClick={e => e.stopPropagation()}>
             <h3>Konfirmasi Hapus Pengguna</h3>
-            <p>Apakah Anda yakin ingin menghapus akun pengguna <strong>{selectedUser?.username}</strong>? Tindakan ini tidak dapat dibatalkan.</p>
+            <p>Apakah Anda yakin ingin menghapus akun pengguna <strong>{selectedUser?.name} ({selectedUser?.nip})</strong>? Tindakan ini tidak dapat dibatalkan.</p>
             <div className="delete-modal-actions">
               <button className="btn-cancel" onClick={() => setShowDeleteModal(false)} disabled={saving}>Batal</button>
               <button className="btn-danger" onClick={handleDeleteConfirm} disabled={saving}>

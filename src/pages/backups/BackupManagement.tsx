@@ -354,7 +354,7 @@ export default function BackupManagement() {
                         </span>
                         {backup.creator && (
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            oleh {backup.creator.username}
+                            oleh {backup.creator.name}
                           </span>
                         )}
                       </div>

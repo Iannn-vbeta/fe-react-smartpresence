@@ -17,7 +17,8 @@ export interface BackupLog {
   updated_at: string;
   creator?: {
     id: number;
-    username: string;
+    name: string;
+    nip: string;
   };
 }
 

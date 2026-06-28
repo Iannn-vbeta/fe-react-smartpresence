@@ -314,7 +314,7 @@ const QUOTES: string[] = [
 ];
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [nip, setNip] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -349,7 +349,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.login({ username, password });
+      const response = await authService.login({ nip, password });
       auth.login(response.token, response.user);
       navigate('/dashboard', { replace: true });
     } catch (err: unknown) {
@@ -385,15 +385,15 @@ const Login: React.FC = () => {
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="nip">NIP</label>
             <div className="input-wrapper">
               <img src={userIcon} alt="user icon" className="input-icon" />
               <input
                 type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Masukkan username"
+                id="nip"
+                value={nip}
+                onChange={(e) => setNip(e.target.value)}
+                placeholder="Masukkan NIP"
                 required
                 disabled={isLoading}
               />

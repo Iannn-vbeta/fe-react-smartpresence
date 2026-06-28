@@ -1,5 +1,5 @@
 export interface LoginRequest {
-  username?: string;
+  nip?: string;
   password?: string;
 }
 
@@ -15,7 +15,8 @@ export interface Role {
 
 export interface User {
   id: number;
-  username: string;
+  name: string;
+  nip: string;
   role_id: number;
   created_at: string;
   updated_at: string;
@@ -23,7 +24,8 @@ export interface User {
 }
 
 export interface UserFormData {
-  username: string;
+  name: string;
+  nip: string;
   password?: string;
   role_id: number | '';
 }
