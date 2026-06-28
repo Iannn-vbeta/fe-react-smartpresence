@@ -63,6 +63,7 @@ html.dark-mode .sidebar-brand-logo {
   font-size: 0.7rem;
   opacity: 0.7;
   font-weight: 400;
+  color: #ffffff;
 }
 
 /* ─── Navigation ─── */
@@ -381,20 +382,21 @@ html.dark-mode .sidebar-brand-logo {
   border: 1px solid var(--border-color) !important;
 }
 
-.sidebar-btn-cancel:hover { 
-  background: var(--bg-hover); 
+.sidebar-btn-cancel:hover {
+  background: var(--bg-hover);
 }
 
 .sidebar-btn-danger {
-  background: #e11d48; /* Red color matching image */
+  background: #e11d48;
+  /* Red color matching image */
   color: #fff;
 }
 
-.sidebar-btn-danger:hover { 
-  background: #be123c; 
+.sidebar-btn-danger:hover {
+  background: #be123c;
 }
 
-.sidebar-btn-danger:disabled { 
-  opacity: 0.6; 
-  cursor: not-allowed; 
+.sidebar-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
