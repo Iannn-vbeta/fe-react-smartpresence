@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# SmartPresence Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Proyek ini adalah antarmuka web (frontend) untuk aplikasi SmartPresence. Dibangun menggunakan **React** + **TypeScript** + **Vite**, memberikan performa *development* yang sangat cepat dan build yang ringan.
 
-Currently, two official plugins are available:
+## 🚀 Prasyarat
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Pastikan kamu sudah menginstal salah satu dari *package manager* berikut:
+- [Bun](https://bun.sh/), [NPM], dst yg enaknya kalian saja (Sangat direkomendasikan karena proyek ini menggunakan `bun.lock`)
+- Node.js (v18+) & NPM / Yarn / PNPM
 
-## React Compiler
+## ⚙️ Pengaturan Lingkungan (.env)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Proyek ini menggunakan file `.env` untuk mengatur konfigurasi server Vite, port, dan proxy API tanpa perlu mengubah kode sumber.
 
-## Expanding the ESLint configuration
+1. Jika belum ada, buat file `.env` di *root* direktori proyek.
+2. Tambahkan konfigurasi berikut ke dalam file `.env`:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_PORT=3000
+VITE_API_URL=http://127.0.0.1:8000
+VITE_MINIO_URL=http://minio:9090
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Penjelasan variabel:
+- `VITE_PORT`: Port yang akan digunakan oleh *development server* Vite (default: 3000).
+- `VITE_API_URL`: URL utama (target) untuk API backend yang digunakan untuk konfigurasi *proxy* `/api` dan `/storage`.
+- `VITE_MINIO_URL`: URL utama (target) untuk server penyimpanan lokal MinIO yang digunakan untuk *proxy* `/smartpresence`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📦 Instalasi Dependensi
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Jalankan perintah berikut di terminal (pastikan berada di *root* direktori proyek):
+
+```bash
+# Jika menggunakan Bun (Direkomendasikan)
+bun install
+
+# Jika menggunakan NPM
+npm install
 ```
+
+## 💻 Menjalankan Server Pengembangan
+
+Setelah dependensi terinstal, kamu bisa menjalankan *development server*:
+
+```bash
+# Menggunakan Bun
+bun run dev
+
+# Menggunakan NPM
+npm run dev
+```
+
+Aplikasi akan berjalan pada port yang telah kamu atur di file `.env` (misalnya `http://localhost:3000`). Fitur HMR (*Hot Module Replacement*) sudah aktif, sehingga setiap perubahan pada kode sumber akan langsung terlihat di *browser*.
+
+## 🛠️ Perintah Lainnya
+
+Beberapa perintah (scripts) yang bisa kamu gunakan selama pengembangan:
+
+- `bun run build`: Melakukan *build* aplikasi untuk produksi (termasuk pengecekan tipe statis menggunakan TypeScript). Hasil *build* akan ada di dalam folder `dist`.
+- `bun run lint`: Menjalankan ESLint untuk memeriksa masalah atau gaya penulisan kode pada proyek.
+- `bun run preview`: Menjalankan *local web server* untuk mencoba (*preview*) hasil `build` produksi di mesin lokal.
+
+## 📚 Teknologi Utama
+- [React 19](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/)
+- [React Router DOM](https://reactrouter.com/)
+- [Axios](https://axios-http.com/)
+- *Rich Text Editor*: TinyMCE & React Quill New
